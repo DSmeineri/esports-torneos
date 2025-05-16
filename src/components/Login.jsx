@@ -1,21 +1,21 @@
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
-
-// Al inicio del componente Login:
-const [user] = useAuthState(auth);
-if (user) {
-    navigate("/perfil");
-}
-
-import React, { useState } from "react";
+// ✅ TODAS LAS IMPORTACIONES AL INICIO
+import React, { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const [user] = useAuthState(auth);
+
+    useEffect(() => {
+    if (user) {
+        navigate("/perfil");
+    }
+    }, [user, navigate]);
 
     const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +27,6 @@ export default function Login() {
 
     try {
         await signInWithEmailAndPassword(auth, form.email, form.password);
-      navigate("/perfil"); // redirige si inicia sesión
     } catch (err) {
         setError("❌ Email o contraseña incorrectos");
     }
@@ -38,8 +37,8 @@ export default function Login() {
         <h2 className="text-xl font-bold mb-4">Iniciar sesión</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
         <input
-            type="email"
-            name="email"
+        type="email"
+        name="email"
             placeholder="Correo electrónico"
             value={form.email}
             onChange={handleChange}

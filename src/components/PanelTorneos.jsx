@@ -15,70 +15,123 @@ export default function PanelTorneos() {
 
     useEffect(() => {
     const cargarTorneosYEquipo = async () => {
+        try {
         const snapshot = await getDocs(collection(db, "torneos"));
         const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setTorneos(lista);
-
-      // Buscar el equipo del usuario actual (como creador)
-        const equiposSnapshot = await getDocs(collection(db, "equipos"));
+ 
         const userUID = auth.currentUser?.uid;
+        const equiposSnapshot = await getDocs(collection(db, "equipos"));
         const equipo = equiposSnapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .find(eq => eq.creadorUID === userUID);
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .find(eq => eq.creadorUID === userUID);
 
         setMiEquipo(equipo || null);
+        } catch (err) {
+        console.error("Error al cargar torneos o equipo:", err);
+        }
     };
 
     cargarTorneosYEquipo();
     }, []);
 
     const inscribirEquipo = async (torneo) => {
-    if (!miEquipo) {
-        return setMensaje("❌ No tenés un equipo creado.");
-    }
+    if (!miEquipo) return setMensaje("❌ No tenés un equipo creado.");
 
-    if (miEquipo.integrantes.length < 5) {
-        return setMensaje("❌ Tu equipo no cumple con el mínimo de 5 integrantes.");
+    const cantidadJugadores = miEquipo.integrantes.length;
+    const requeridos = torneo.jugadoresPorEquipo || 5;
+    const ticketsRequeridos = torneo.ticketsPorJugador || 1;
+
+    if (cantidadJugadores < requeridos) {
+        return setMensaje(`❌ Tu equipo necesita al menos ${requeridos} jugadores.`);
     }
 
     if (torneo.equiposInscritos.some(e => e.equipoId === miEquipo.id)) {
         return setMensaje("⚠️ Tu equipo ya está inscrito en este torneo.");
     }
 
-    if (torneo.equiposInscritos.length >= torneo.cupoMaximo) {
-        return setMensaje("❌ Este torneo ya alcanzó el cupo máximo.");
+    if (torneo.equiposInscritos.length >= torneo.equiposTotales) {
+        return setMensaje("❌ El cupo del torneo ya está completo.");
     }
 
-    const torneoRef = doc(db, "torneos", torneo.id);
-    const actualizados = [...torneo.equiposInscritos, {
-        equipoId: miEquipo.id,
-        nombre: miEquipo.nombre
-    }];
-    await updateDoc(torneoRef, { equiposInscritos: actualizados });
+    try {
+      // Verificar que todos los jugadores tengan tickets suficientes
+        const jugadoresSnapshot = await Promise.all(
+        miEquipo.integrantes.map((i) => getDoc(doc(db, "jugadores", i.uid)))
+        );
 
-    setMensaje("✅ Equipo inscrito correctamente.");
-    setTorneos(prev => prev.map(t =>
-        t.id === torneo.id ? { ...t, equiposInscritos: actualizados } : t
-    ));
+        const jugadoresConDatos = jugadoresSnapshot.map((snap) => ({
+        uid: snap.id,
+        ...snap.data(),
+        }));
+
+        const sinTickets = jugadoresConDatos.filter(
+        (j) => (j.tickets || 0) < ticketsRequeridos
+        );
+
+        if (sinTickets.length > 0) {
+        return setMensaje(
+            `❌ Los siguientes jugadores no tienen los ${ticketsRequeridos} tickets necesarios: ${sinTickets
+            .map((j) => j.nombre)
+            .join(", ")}`
+        );
+        }
+
+      // Descontar tickets
+        await Promise.all(
+        jugadoresConDatos.map((j) =>
+            updateDoc(doc(db, "jugadores", j.uid), {
+            tickets: j.tickets - ticketsRequeridos,
+            })
+        )
+        );
+
+      // Agregar equipo al torneo
+        const torneoRef = doc(db, "torneos", torneo.id);
+        const actualizado = [
+        ...torneo.equiposInscritos,
+        { equipoId: miEquipo.id, nombre: miEquipo.nombre },
+        ];
+        await updateDoc(torneoRef, { equiposInscritos: actualizado });
+
+        setMensaje("✅ Equipo inscrito correctamente.");
+        setTorneos((prev) =>
+        prev.map((t) =>
+            t.id === torneo.id ? { ...t, equiposInscritos: actualizado } : t
+        )
+        );
+    } catch (err) {
+        console.error("Error al inscribir equipo:", err);
+        setMensaje("❌ Ocurrió un error al inscribir al equipo.");
+    }
     };
 
     return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
-        <h2 className="text-2xl font-bold mb-6">Torneos disponibles</h2>
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow space-y-6">
+        <h2 className="text-2xl font-bold text-center">Torneos disponibles</h2>
 
-        {mensaje && <p className="mb-4 text-center text-green-600 font-semibold">{mensaje}</p>}
+        {mensaje && (
+        <p className="mb-4 text-center text-blue-700 font-semibold">{mensaje}</p>
+        )}
 
         {torneos.map((torneo) => (
-        <div key={torneo.id} className="border p-4 rounded mb-4">
-            <h3 className="text-xl font-semibold">{torneo.nombre}</h3>
+        <div key={torneo.id} className="border border-gray-300 p-4 rounded shadow-sm bg-gray-50">
+            <h3 className="text-xl font-semibold text-gray-800">{torneo.nombre}</h3>
             <p className="text-sm text-gray-600">Juego: {torneo.juego}</p>
           <p className="text-sm">Fecha: {new Date(torneo.fecha.seconds * 1000).toLocaleString()}</p>
-            <p className="text-sm">Cupo: {torneo.equiposInscritos.length} / {torneo.cupoMaximo}</p>
-            <p className="text-sm mb-2">Estado: <strong>{torneo.estado}</strong></p>
+            <p className="text-sm">
+            Cupo: {torneo.equiposInscritos.length} / {torneo.equiposTotales}
+            </p>
+            <p className="text-sm">
+            Integrantes por equipo: {torneo.jugadoresPorEquipo} | Tickets por jugador: {torneo.ticketsPorJugador}
+            </p>
+            <p className="text-sm mb-2">
+            Estado: <strong>{torneo.estado}</strong>
+            </p>
 
             <button
             onClick={() => inscribirEquipo(torneo)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
             Inscribir equipo
             </button>

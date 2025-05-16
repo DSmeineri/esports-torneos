@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth, db, storage } from "../Firebase.js";
+import { auth, db, storage } from "../firebase.js";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";

@@ -1,77 +1,78 @@
-import React from 'react';
-
-function App() {
-  return (
-    <div className="text-center p-10">
-      <h1 className="text-2xl font-bold">🏆 Bienvenido a eSports Torneos</h1>
-      <p className="mt-2 text-gray-600">Tu plataforma de torneos con Firebase + React</p>
-    </div>
-  );
-}
-
-import RegistroJugador from "./components/RegistroJugador";
-
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <RegistroJugador />
-    </div>
-  );
-}
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import RegistroJugador from "./components/RegistroJugador";
 import Login from "./components/Login";
-import PerfilJugador from "./components/PerfilJugador"; // aún por crear
+import PerfilJugador from "./components/PerfilJugador";
+import RegistroEquipo from "./components/RegistroEquipo";
+import PerfilEquipo from "./components/PerfilEquipo";
+import PanelTorneos from "./components/PanelTorneos";
 import PrivateRoute from "./components/PrivateRoute";
+import Navbar from "./components/Navbar";
+import CrearTorneo from "./components/CrearTorneo";
+import AdminTickets from "./components/AdminTickets";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<RegistroJugador />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/perfil"
-          element={
-            <PrivateRoute>
-              <PerfilJugador />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
+      <Navbar />
+      <div className="min-h-screen bg-gray-100 p-6">
+        <Routes>
+          <Route path="/" element={<RegistroJugador />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/perfil"
+            element={
+              <PrivateRoute>
+                <PerfilJugador />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/registro-equipo"
+            element={
+              <PrivateRoute>
+                <RegistroEquipo />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/perfil-equipo"
+            element={
+              <PrivateRoute>
+                <PerfilEquipo />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/torneos"
+            element={
+              <PrivateRoute>
+                <PanelTorneos />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/crear-torneo"
+            element={
+              <PrivateRoute>
+                <CrearTorneo />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/tickets"
+            element={
+              <PrivateRoute>
+                <AdminTickets />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+        
+      </div>
     </Router>
   );
 }
-import RegistroEquipo from "./components/RegistroEquipo";
-
-<Route
-  path="/registro-equipo"
-  element={
-    <PrivateRoute>
-      <RegistroEquipo />
-    </PrivateRoute>
-  }
-/>
-
-import PerfilEquipo from "./components/PerfilEquipo";
-
-<Route
-  path="/perfil-equipo"
-  element={
-    <PrivateRoute>
-      <PerfilEquipo />
-    </PrivateRoute>
-  }
-/>
-import PanelTorneos from "./components/PanelTorneos";
-
-<Route
-  path="/torneos"
-  element={
-    <PrivateRoute>
-      <PanelTorneos />
-    </PrivateRoute>
-  }
-/>
 
 export default App;
