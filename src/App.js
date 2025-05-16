@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import RegistroJugador from "./components/RegistroJugador";
 import Login from "./components/Login";
-import PerfilJugador from "./components/PerfilJugador";
 import RegistroEquipo from "./components/RegistroEquipo";
 import PerfilEquipo from "./components/PerfilEquipo";
 import PanelTorneos from "./components/PanelTorneos";
@@ -11,6 +10,9 @@ import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import CrearTorneo from "./components/CrearTorneo";
 import AdminTickets from "./components/AdminTickets";
+import Home from "./pages/Home"; // ✅ CORREGIDO
+import AdminDashboard from "./components/AdminDashboard";
+import PerfilJugador from "./components/PerfilJugador";
 
 function App() {
   return (
@@ -19,7 +21,16 @@ function App() {
       <div className="min-h-screen bg-gray-100 p-6">
         <Routes>
           <Route path="/" element={<RegistroJugador />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/perfil"
             element={
@@ -69,10 +80,9 @@ function App() {
             }
           />
         </Routes>
-        
       </div>
     </Router>
   );
 }
 
-export default App;
+export default App

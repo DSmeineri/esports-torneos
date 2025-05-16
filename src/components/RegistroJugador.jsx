@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { auth, db, storage } from "../firebase.js";
+import { auth, db, storage } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+    cardBase,
+    inputBase,
+    btnPrimary,
+    titlePage,
+    textBase,
+    grid2cols
+} from "../styles";
 
 export default function RegistroJugador() {
     const [form, setForm] = useState({
@@ -10,7 +18,7 @@ export default function RegistroJugador() {
     apellido: "",
     email: "",
     password: "",
-    idJuego: "",
+    gameId: "",
     subCodigo: "",
     equipo: "",
     foto: null,
@@ -39,9 +47,8 @@ export default function RegistroJugador() {
 
     const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-        const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password || "123456");
+        const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
         const uid = userCred.user.uid;
 
         let fotoURL = "";
@@ -56,10 +63,11 @@ export default function RegistroJugador() {
         nombre: form.nombre,
         apellido: form.apellido,
         email: form.email,
-        idJuego: form.idJuego,
+        gameId: form.gameId,
         subCodigo: form.subCodigo,
         equipo: form.equipo || null,
         fotoURL,
+        tickets: 0,
         creado: new Date(),
         });
 
@@ -69,7 +77,7 @@ export default function RegistroJugador() {
         apellido: "",
         email: "",
         password: "",
-        idJuego: "",
+        gameId: "",
         subCodigo: "",
         equipo: "",
         foto: null,
@@ -81,76 +89,78 @@ export default function RegistroJugador() {
     };
 
     return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-xl mt-10">
-        <h2 className="text-2xl font-bold mb-4">Registro de Jugador</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <form onSubmit={handleSubmit} className={cardBase + " w-full max-w-2xl"}>
+        <h2 className={titlePage + " mb-6"}>Registro de Jugador</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-4">
+        <div className={grid2cols + " mb-4"}>
             <input
+            className={inputBase}
             name="nombre"
             placeholder="Nombre"
             value={form.nombre}
             onChange={handleChange}
-            className="w-1/2 p-2 border rounded"
             required
             />
             <input
+            className={inputBase}
             name="apellido"
             placeholder="Apellido"
             value={form.apellido}
             onChange={handleChange}
-            className="w-1/2 p-2 border rounded"
             required
             />
         </div>
 
-        <input
+        <div className={grid2cols + " mb-4"}>
+            <input
+            className={inputBase}
             name="email"
             type="email"
-            placeholder="Correo"
+            placeholder="Correo electrónico"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
             required
-        />
-
-        <input
+            />
+            <input
+            className={inputBase}
             name="password"
             type="password"
             placeholder="Contraseña"
             value={form.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
             required
-        />
+            />
+        </div>
 
-        <input
-            name="idJuego"
-            placeholder="ID del juego (8 dígitos)"
-            value={form.idJuego}
+        <div className={grid2cols + " mb-4"}>
+            <input
+            className={inputBase}
+            name="gameId"
+            placeholder="Game ID (8 dígitos)"
+            value={form.gameId}
             onChange={handleChange}
             pattern="^\d{8}$"
             title="Debe tener exactamente 8 dígitos"
-            className="w-full p-2 border rounded"
             required
-        />
-
-        <input
+            />
+            <input
+            className={inputBase}
             name="subCodigo"
             placeholder="Subcódigo (formato: (1234))"
             value={form.subCodigo}
             onChange={handleChange}
             pattern="^\(\d{4}\)$"
             title="Debe estar entre paréntesis, ejemplo: (1234)"
-            className="w-full p-2 border rounded"
             required
-        />
+            />
+        </div>
 
         <select
             name="equipo"
             value={form.equipo}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputBase + " mb-4"}
         >
             <option value="">Selecciona un equipo (opcional)</option>
             {equipos.map(eq => (
@@ -163,20 +173,15 @@ export default function RegistroJugador() {
             type="file"
             accept="image/*"
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputBase + " mb-4"}
         />
 
-        <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
+        <button type="submit" className={btnPrimary + " w-full"}>
             Registrarse
         </button>
-        </form>
 
-        {mensaje && (
-        <div className="mt-4 text-center font-semibold text-green-600">{mensaje}</div>
-        )}
+        {mensaje && <p className="mt-4 text-sm text-center text-green-600">{mensaje}</p>}
+        </form>
     </div>
     );
 }

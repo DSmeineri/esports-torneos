@@ -1,58 +1,37 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { flexBetween, textBase } from "../styles";
+import { Menu, X } from "lucide-react"; // íconos modernos
 
 export default function Navbar() {
-    const [user] = useAuthState(auth);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const navigate = useNavigate();
+    const [menuAbierto, setMenuAbierto] = useState(false);
 
-    const cerrarSesion = async () => {
-    await auth.signOut();
-    navigate("/login");
-    };
+    const toggleMenu = () => setMenuAbierto(!menuAbierto);
 
     return (
-    <header className="bg-gray-900 text-white shadow-md">
-        <nav className="container mx-auto flex items-center justify-between p-4">
-        <h1 className="text-xl font-bold">
-            <Link to="/">EsportsTorneos</Link>
-        </h1>
-
-        {/* Botón para mobile */}
-        <button
-            className="md:hidden text-white focus:outline-none"
-            onClick={() => setMenuOpen(!menuOpen)}
-        >
-            ☰
-        </button>
-
-        {/* Menú principal */}
-        <ul className={`md:flex gap-4 ${menuOpen ? "block" : "hidden"} md:block`}>
-            <li><Link to="/">Inicio</Link></li>
-            <li><Link to="/torneos">Torneos</Link></li>
-            {user && (
-            <>
-                <li><Link to="/perfil">Perfil Jugador</Link></li>
-                <li><Link to="/registro-equipo">Crear Equipo</Link></li>
-                <li><Link to="/perfil-equipo">Mi Equipo</Link></li>
-            </>
-            )}
-            <li><Link to="/contacto">Contacto</Link></li>
-            {!user ? (
-            <li><Link to="/login">Login</Link></li>
-            ) : (
-            <li>
-                <button
-                onClick={cerrarSesion}
-                className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
-                >
-                Cerrar sesión
-                </button>
-            </li>
-            )}
-        </ul>
+    <header className="bg-gray-900 text-white shadow">
+        <nav className="container mx-auto px-4 py-3">
+        <div className={`${flexBetween} items-center`}>
+            <h1 className="text-lg font-bold">EsportsTorneos</h1>
+            <button
+            onClick={toggleMenu}
+            className="sm:hidden text-white focus:outline-none"
+            aria-label="Abrir menú"
+            >
+            {menuAbierto ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <ul
+            className={`${
+                menuAbierto ? "flex" : "hidden"
+            } sm:flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm sm:items-center mt-4 sm:mt-0`}
+            >
+            <li><Link to="/" className={`${textBase} hover:text-white`} onClick={() => setMenuAbierto(false)}>Inicio</Link></li>
+            <li><Link to="/torneos" className={`${textBase} hover:text-white`} onClick={() => setMenuAbierto(false)}>Torneos</Link></li>
+            <li><Link to="/noticias" className={`${textBase} hover:text-white`} onClick={() => setMenuAbierto(false)}>Noticias</Link></li>
+            <li><Link to="/perfil" className={`${textBase} hover:text-white`} onClick={() => setMenuAbierto(false)}>Perfil</Link></li>
+            <li><Link to="/contacto" className={`${textBase} hover:text-white`} onClick={() => setMenuAbierto(false)}>Contacto</Link></li>
+            </ul>
+        </div>
         </nav>
     </header>
     );
