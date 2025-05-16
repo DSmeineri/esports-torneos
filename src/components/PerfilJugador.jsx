@@ -1,7 +1,15 @@
+// PerfilJugador.jsx
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
+import {
+    cardBase,
+    titlePage,
+    textBase,
+    avatar,
+    btnPrimary
+} from "../styles";
 
 export default function PerfilJugador() {
     const [jugador, setJugador] = useState(null);
@@ -33,17 +41,17 @@ export default function PerfilJugador() {
     }
 
     return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow rounded-xl">
+    <div className={cardBase + " max-w-2xl mx-auto mt-10"}>
         <div className="flex items-center gap-4 mb-6">
         <img
             src={jugador.fotoURL || "/default.jpg"}
             alt="Foto de perfil"
-            className="w-20 h-20 object-cover rounded-full"
+            className={avatar}
         />
         <div>
-            <h2 className="text-2xl font-bold">{jugador.nombre} {jugador.apellido}</h2>
-            <p className="text-gray-600 text-sm">{jugador.email}</p>
-            <p className="text-sm">ID del juego: {jugador.idJuego} {jugador.subCodigo}</p>
+            <h2 className={titlePage}>{jugador.nombre} {jugador.apellido}</h2>
+            <p className={textBase}>{jugador.email}</p>
+            <p className={textBase}>ID del juego: {jugador.idJuego} {jugador.subCodigo}</p>
             {jugador.equipo && (
             <p className="text-sm text-blue-600">Equipo: {jugador.equipo}</p>
             )}
@@ -59,4 +67,3 @@ export default function PerfilJugador() {
     </div>
     );
 }
-

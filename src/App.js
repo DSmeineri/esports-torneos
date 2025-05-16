@@ -10,7 +10,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import CrearTorneo from "./components/CrearTorneo";
 import AdminTickets from "./components/AdminTickets";
-import Home from "./pages/Home"; // ✅ CORREGIDO
+import Home from "./pages/Home";
 import AdminDashboard from "./components/AdminDashboard";
 import PerfilJugador from "./components/PerfilJugador";
 
@@ -18,7 +18,7 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <div className="min-h-screen bg-gray-100 p-6">
+      <div className="min-h-screen bg-gray-100 text-gray-800 p-6">
         <Routes>
           <Route path="/" element={<RegistroJugador />} />
           <Route path="/home" element={<Home />} />
@@ -85,4 +85,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
