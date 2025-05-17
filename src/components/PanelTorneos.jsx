@@ -19,7 +19,7 @@ export default function PanelTorneos() {
         const snapshot = await getDocs(collection(db, "torneos"));
         const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setTorneos(lista);
- 
+
         const userUID = auth.currentUser?.uid;
         const equiposSnapshot = await getDocs(collection(db, "equipos"));
         const equipo = equiposSnapshot.docs
@@ -55,7 +55,6 @@ export default function PanelTorneos() {
     }
 
     try {
-      // Verificar que todos los jugadores tengan tickets suficientes
         const jugadoresSnapshot = await Promise.all(
         miEquipo.integrantes.map((i) => getDoc(doc(db, "jugadores", i.uid)))
         );
@@ -77,7 +76,6 @@ export default function PanelTorneos() {
         );
         }
 
-      // Descontar tickets
         await Promise.all(
         jugadoresConDatos.map((j) =>
             updateDoc(doc(db, "jugadores", j.uid), {
@@ -86,7 +84,6 @@ export default function PanelTorneos() {
         )
         );
 
-      // Agregar equipo al torneo
         const torneoRef = doc(db, "torneos", torneo.id);
         const actualizado = [
         ...torneo.equiposInscritos,
@@ -107,31 +104,29 @@ export default function PanelTorneos() {
     };
 
     return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow space-y-6">
-        <h2 className="text-2xl font-bold text-center">Torneos disponibles</h2>
+    <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow space-y-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800">Torneos disponibles</h2>
 
         {mensaje && (
         <p className="mb-4 text-center text-blue-700 font-semibold">{mensaje}</p>
         )}
 
         {torneos.map((torneo) => (
-        <div key={torneo.id} className="border border-gray-300 p-4 rounded shadow-sm bg-gray-50">
-            <h3 className="text-xl font-semibold text-gray-800">{torneo.nombre}</h3>
-            <p className="text-sm text-gray-600">Juego: {torneo.juego}</p>
-          <p className="text-sm">Fecha: {new Date(torneo.fecha.seconds * 1000).toLocaleString()}</p>
-            <p className="text-sm">
-            Cupo: {torneo.equiposInscritos.length} / {torneo.equiposTotales}
+        <div key={torneo.id} className="border border-gray-200 p-4 rounded-xl bg-gray-50 shadow-sm space-y-1">
+            <h3 className="text-xl font-semibold text-gray-900">{torneo.nombre}</h3>
+            <p className="text-sm text-gray-600">🎮 Juego: {torneo.juego}</p>
+          <p className="text-sm text-gray-600">🗓️ Fecha: {new Date(torneo.fecha.seconds * 1000).toLocaleString()}</p>
+            <p className="text-sm text-gray-600">👥 Cupo: {torneo.equiposInscritos.length} / {torneo.equiposTotales}</p>
+            <p className="text-sm text-gray-600">
+            🧑‍🤝‍🧑 Integrantes/Equipo: {torneo.jugadoresPorEquipo} | 🎫 Tickets: {torneo.ticketsPorJugador}
             </p>
-            <p className="text-sm">
-            Integrantes por equipo: {torneo.jugadoresPorEquipo} | Tickets por jugador: {torneo.ticketsPorJugador}
-            </p>
-            <p className="text-sm mb-2">
-            Estado: <strong>{torneo.estado}</strong>
+            <p className="text-sm text-gray-700">
+            Estado: <strong className="capitalize">{torneo.estado}</strong>
             </p>
 
             <button
             onClick={() => inscribirEquipo(torneo)}
-            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
             >
             Inscribir equipo
             </button>

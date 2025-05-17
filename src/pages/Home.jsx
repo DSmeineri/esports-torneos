@@ -8,6 +8,7 @@ import {
   textBase,
   btnPrimary
 } from "../styles";
+import MainLayout from "../components/MainLayout.jsx"; // 👈 Importar el layout
 
 export default function Home() {
   const [torneos, setTorneos] = useState([]);
@@ -22,36 +23,46 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 space-y-12">
-      {/* Sección de bienvenida */}
-      <div className={`${cardBase} text-center max-w-2xl mx-auto`}>
-        <h1 className={`${titlePage} mb-4`}>🎮 Bienvenido a eSports Torneos</h1>
-        <p className={`${textBase} mb-6`}>
-          Únete a nuestra comunidad de jugadores y participa en torneos competitivos de Mobile Legends. Crea tu equipo, gana tickets y demuestra tus habilidades.
-        </p>
-        <Link to="/registro-equipo" className={btnPrimary}>Crear equipo</Link>
-      </div>
+    <MainLayout>
+      <div className="space-y-12">
+        {/* Sección de bienvenida */}
+        <section className={`${cardBase} text-center max-w-2xl mx-auto`}>
+          <h1 className={`${titlePage} mb-4`}>
+            🎮 Bienvenido a <span className="text-blue-600">eSports Torneos</span>
+          </h1>
+          <p className={`${textBase} mb-6`}>
+            Participá en torneos competitivos de Mobile Legends. Crea tu equipo, ganá tickets y demostrale al mundo tu habilidad.
+          </p>
+          <Link to="/registro-equipo" className={btnPrimary}>
+            Crear equipo
+          </Link>
+        </section>
 
-      {/* Torneos destacados */}
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4 text-center">Torneos destacados</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {torneos.map((torneo) => (
-            <div key={torneo.id} className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
-              <h3 className="text-lg font-semibold text-gray-800">{torneo.nombre}</h3>
-              <p className="text-sm text-gray-500">Juego: {torneo.juego}</p>
-              <p className="text-sm">Fecha: {new Date(torneo.fecha.seconds * 1000).toLocaleDateString()}</p>
-              <p className="text-sm">Equipos: {torneo.equiposInscritos.length} / {torneo.equiposTotales}</p>
-              <Link
-                to="/torneos"
-                className="inline-block mt-3 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-              >
-                Ver torneo
-              </Link>
-            </div>
-          ))}
-        </div>
+        {/* Torneos destacados */}
+        <section className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Torneos destacados</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {torneos.map((torneo) => (
+              <div key={torneo.id} className="bg-white border border-gray-200 p-5 rounded-xl shadow hover:shadow-md transition">
+                <h3 className="text-lg font-semibold text-gray-800">{torneo.nombre}</h3>
+                <p className="text-sm text-gray-500">Juego: {torneo.juego}</p>
+                <p className="text-sm text-gray-600">
+                  Fecha: {new Date(torneo.fecha.seconds * 1000).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Equipos: {torneo.equiposInscritos.length} / {torneo.equiposTotales}
+                </p>
+                <Link
+                  to="/torneos"
+                  className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Ver torneo
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </MainLayout>
   );
 }

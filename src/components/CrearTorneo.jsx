@@ -9,7 +9,7 @@ export default function CrearTorneo() {
     fecha: "",
     jugadoresPorEquipo: 5,
     equiposTotales: 8,
-    ticketsPorJugador: 1
+    ticketsPorJugador: 1,
     });
 
     const [mensaje, setMensaje] = useState("");
@@ -33,7 +33,7 @@ export default function CrearTorneo() {
         jugadoresPorEquipo: parseInt(form.jugadoresPorEquipo),
         equiposTotales: parseInt(form.equiposTotales),
         ticketsPorJugador: parseInt(form.ticketsPorJugador),
-        equiposInscritos: []
+        equiposInscritos: [],
         });
 
         setMensaje("✅ Torneo creado correctamente.");
@@ -43,7 +43,7 @@ export default function CrearTorneo() {
         fecha: "",
         jugadoresPorEquipo: 5,
         equiposTotales: 8,
-        ticketsPorJugador: 1
+        ticketsPorJugador: 1,
         });
     } catch (err) {
         console.error(err);
@@ -52,8 +52,9 @@ export default function CrearTorneo() {
     };
 
     return (
-    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow space-y-4">
-        <h2 className="text-2xl font-bold mb-2">Crear nuevo torneo</h2>
+    <div className="card max-w-xl mx-auto mt-10 space-y-4">
+        <h2 className="titulo">Crear nuevo torneo</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
         <input
             type="text"
@@ -62,7 +63,7 @@ export default function CrearTorneo() {
             onChange={handleChange}
             placeholder="Nombre del torneo"
             required
-            className="w-full p-2 border rounded"
+            className="input"
         />
 
         <input
@@ -71,7 +72,7 @@ export default function CrearTorneo() {
             value={form.fecha}
             onChange={handleChange}
             required
-            className="w-full p-2 border rounded"
+            className="input"
         />
 
         <input
@@ -81,7 +82,7 @@ export default function CrearTorneo() {
             onChange={handleChange}
             min="1"
             required
-            className="w-full p-2 border rounded"
+            className="input"
             placeholder="Jugadores por equipo"
         />
 
@@ -92,7 +93,7 @@ export default function CrearTorneo() {
             onChange={handleChange}
             min="2"
             required
-            className="w-full p-2 border rounded"
+            className="input"
             placeholder="Cantidad de equipos"
         />
 
@@ -104,14 +105,11 @@ export default function CrearTorneo() {
             min="1"
             max="5"
             required
-            className="w-full p-2 border rounded"
+            className="input"
             placeholder="Tickets requeridos por jugador"
         />
 
-        <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
+        <button type="submit" className="boton-primario w-full">
             Crear torneo
         </button>
         </form>

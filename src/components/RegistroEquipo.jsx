@@ -29,11 +29,9 @@ export default function RegistroEquipo() {
     if (!user) return;
 
     try {
-      // Obtener nombre del creador
         const jugadorDoc = await getDoc(doc(db, "jugadores", user.uid));
         const jugadorData = jugadorDoc.exists() ? jugadorDoc.data() : null;
 
-      // Subir logo (opcional)
         let logoURL = "";
         if (form.logo) {
         const logoRef = ref(storage, `logosEquipos/${user.uid}_${Date.now()}`);
@@ -56,7 +54,7 @@ export default function RegistroEquipo() {
         setMensaje("✅ Equipo registrado con éxito");
         setForm({ nombre: "", descripcion: "", logo: null });
 
-      setTimeout(() => navigate("/perfil-equipo"), 2000); // opcional
+        setTimeout(() => navigate("/perfil-equipo"), 2000);
     } catch (err) {
         console.error(err);
         setMensaje("❌ Error al registrar el equipo");
@@ -64,39 +62,53 @@ export default function RegistroEquipo() {
     };
 
     return (
-    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
-        <h2 className="text-2xl font-bold mb-4">Registro de Equipo</h2>
+    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow space-y-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800">Registro de Equipo</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-        <input
+        <div>
+            <label className="block text-sm text-gray-600 mb-1">Nombre del equipo</label>
+            <input
             name="nombre"
-            placeholder="Nombre del equipo"
+            placeholder="Ej: Los Titanes"
             value={form.nombre}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-        />
-        <textarea
+            />
+        </div>
+
+        <div>
+            <label className="block text-sm text-gray-600 mb-1">Descripción (opcional)</label>
+            <textarea
             name="descripcion"
-            placeholder="Descripción (opcional)"
+            placeholder="Descripción del equipo"
             value={form.descripcion}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
-        />
-        <input
+            className="w-full border border-gray-300 p-2 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+
+        <div>
+            <label className="block text-sm text-gray-600 mb-1">Logo del equipo (opcional)</label>
+            <input
             type="file"
             name="logo"
             accept="image/*"
             onChange={handleChange}
-            className="w-full"
-        />
+            className="block w-full text-sm text-gray-700"
+            />
+        </div>
+
         <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-            Crear Equipo
+            Crear equipo
         </button>
         </form>
-        {mensaje && <p className="text-center mt-4 font-semibold text-green-600">{mensaje}</p>}
+
+        {mensaje && <p className="text-center text-sm font-medium text-green-600">{mensaje}</p>}
     </div>
     );
 }

@@ -1,13 +1,6 @@
-// src/styles.js
-
-// Paleta de colores
+// Paleta fija (si querés referencia visual para consistencia)
 export const colorPrimary = "blue-600";
 export const colorPrimaryHover = "blue-700";
-export const colorText = "text-gray-800";
-export const colorSubtle = "text-gray-600";
-export const colorBorder = "border-gray-300";
-export const colorLight = "bg-gray-100";
-export const colorWhite = "bg-white";
 
 // Estilos generales
 export const containerBase = "max-w-4xl mx-auto p-6";
@@ -20,13 +13,13 @@ export const titlePage = "text-3xl font-bold text-gray-800";
 export const titleSection = "text-xl font-semibold text-gray-700";
 export const textBase = "text-sm text-gray-600";
 
-// Botones
-export const btnPrimary = `bg-${colorPrimary} text-white px-4 py-2 rounded hover:bg-${colorPrimaryHover}`;
+// Botones (estáticos)
+export const btnPrimary = "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700";
 export const btnDisabled = "opacity-50 cursor-not-allowed";
 export const btnLink = "text-blue-600 hover:underline text-sm";
 
 // Inputs
-export const inputBase = `border ${colorBorder} p-2 rounded-md w-full`;
+export const inputBase = "border border-gray-300 p-2 rounded-md w-full";
 
 // Imágenes
 export const avatar = "w-24 h-24 object-cover rounded-full border border-gray-300";
