@@ -1,0 +1,11 @@
+/* privateroute.css - Estilo exclusivo para el componente PrivateRoute */
+
+.prr-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: #4b5563;
+  background-color: #f9fafb;
+}

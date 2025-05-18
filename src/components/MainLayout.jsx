@@ -1,17 +1,21 @@
+// src/components/MainLayout.jsx
 import React from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import "../styles/footer.css";
+import "../styles/navbar.css";
+import "../styles/mainlayout.css"; // 👈 nuevo archivo dedicado
 
 export default function MainLayout({ children }) {
-    return (
-    <div className="min-h-screen flex flex-col bg-gray-100 text-gray-800">
-        <Navbar />
+  return (
+    <div className="lyt-wrapper">
+      <Navbar />
 
-        <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="lyt-main">
         {children}
-        </main>
+      </main>
 
-        <Footer />
+      <Footer />
     </div>
-    );
+  );
 }

@@ -1,0 +1,40 @@
+/* footer.css */
+
+.ftr-footer {
+  background-color: #111827;
+  color: #ffffff;
+  text-align: center;
+  padding: 1.5rem 0;
+  margin-top: 2.5rem;
+  border-top: 1px solid #1f2937;
+}
+
+.ftr-text {
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  color: #d1d5db;
+}
+
+.ftr-brand {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.ftr-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.ftr-link {
+  text-decoration: underline;
+  color: inherit;
+  transition: color 0.2s ease-in-out;
+}
+
+.ftr-link:hover {
+  color: #ffffff;
+}

@@ -1,39 +1,40 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "../styles/admindashboard.css"; // ✅ Importar archivo de estilos dedicado
 
 export default function AdminDashboard() {
-    return (
-    <div className="container">
-        <h1 className="titulo text-center">Panel de Administración</h1>
+  return (
+    <div className="ads-container">
+      <h1 className="ads-title">Panel de Administración</h1>
 
-        <div className="grid2">
-        {/* Bloque: Tickets */}
-        <div className="card">
-            <h2 className="titulo text-blue-700">🎫 Gestión de Tickets</h2>
-            <p className="texto">Otorgá o debitá tickets a jugadores registrados.</p>
-            <Link to="/admin/tickets" className="boton-primario inline-block mt-2">
+      <div className="ads-grid">
+        {/* Gestión de Tickets */}
+        <div className="ads-card ads-card-blue">
+          <h2 className="ads-card-title">🎫 Gestión de Tickets</h2>
+          <p className="ads-texto">Otorgá o debitá tickets a jugadores registrados.</p>
+          <Link to="/admin/tickets" className="ads-boton">
             Administrar Tickets
-            </Link>
+          </Link>
         </div>
 
-        {/* Bloque: Crear torneo */}
-        <div className="card">
-            <h2 className="titulo text-green-700">🏆 Crear Torneo</h2>
-            <p className="texto">Configurá nuevos torneos con reglas personalizadas.</p>
-            <Link to="/admin/crear-torneo" className="boton-primario inline-block mt-2 bg-green-600 hover:bg-green-700">
+        {/* Crear Torneo */}
+        <div className="ads-card ads-card-green">
+          <h2 className="ads-card-title">🏆 Crear Torneo</h2>
+          <p className="ads-texto">Configurá nuevos torneos con reglas personalizadas.</p>
+          <Link to="/admin/crear-torneo" className="ads-boton green">
             Crear Torneo
-            </Link>
+          </Link>
         </div>
 
-        {/* Bloque: Torneos activos */}
-        <div className="card">
-            <h2 className="titulo text-purple-700">📋 Torneos activos</h2>
-            <p className="texto">Revisá el estado y participantes actuales.</p>
-            <Link to="/torneos" className="boton-primario inline-block mt-2 bg-purple-600 hover:bg-purple-700">
+        {/* Torneos Activos */}
+        <div className="ads-card ads-card-purple">
+          <h2 className="ads-card-title">📋 Torneos activos</h2>
+          <p className="ads-texto">Revisá el estado y participantes actuales.</p>
+          <Link to="/torneos" className="ads-boton purple">
             Ver Torneos
-            </Link>
+          </Link>
         </div>
-        </div>
+      </div>
     </div>
-    );
+  );
 }

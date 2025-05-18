@@ -1,0 +1,80 @@
+/* ads = admin dashboard */
+
+.ads-container {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 2rem;
+}
+
+.ads-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #1f2937;
+}
+
+.ads-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .ads-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.ads-card {
+  background-color: #ffffff;
+  padding: 1.75rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ads-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.ads-texto {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.ads-boton {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  color: white;
+  text-align: center;
+  background-color: #2563eb;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.ads-boton:hover {
+  background-color: #1e40af;
+}
+
+.ads-boton.green {
+  background-color: #16a34a;
+}
+
+.ads-boton.green:hover {
+  background-color: #15803d;
+}
+
+.ads-boton.purple {
+  background-color: #7c3aed;
+}
+
+.ads-boton.purple:hover {
+  background-color: #6d28d9;
+}

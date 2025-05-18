@@ -1,0 +1,76 @@
+/* perfiljugador.css */
+
+.pjr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.pjr-card {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 600px;
+}
+
+.pjr-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pjr-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.pjr-info {
+  flex: 1;
+}
+
+.pjr-nombre {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.pjr-email {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.pjr-id {
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.pjr-equipo {
+  font-size: 0.9rem;
+  color: #2563eb;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.pjr-btn-salir {
+  width: 100%;
+  background-color: #dc2626;
+  color: #fff;
+  padding: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.pjr-btn-salir:hover {
+  background-color: #b91c1c;
+}

@@ -2,14 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import {
-  cardBase,
-  titlePage,
-  textBase,
-  avatar,
-  btnPrimary
-} from "../styles";
-import MainLayout from "../components/MainLayout.jsx"; // ✅ Importar el layout
+import "../styles/perfiljugador.css"; // ✅ Importar estilos específicos
 
 export default function PerfilJugador() {
   const [jugador, setJugador] = useState(null);
@@ -41,33 +34,32 @@ export default function PerfilJugador() {
   }
 
   return (
-    <MainLayout>
-      <div className={`${cardBase} max-w-2xl mx-auto mt-10`}>
-        <div className="flex items-center gap-4 mb-6">
+    <section className="pjr-container">
+      <div className="pjr-card">
+        <div className="pjr-header">
           <img
             src={jugador.fotoURL || "/default.jpg"}
             alt="Foto de perfil"
-            className={avatar}
+            className="pjr-avatar"
           />
-          <div>
-            <h2 className={titlePage}>
+          <div className="pjr-info">
+            <h2 className="pjr-nombre">
               {jugador.nombre} {jugador.apellido}
             </h2>
-            <p className={textBase}>{jugador.email}</p>
-            <p className={textBase}>ID del juego: {jugador.gameId} {jugador.subCodigo}</p>
+            <p className="pjr-email">{jugador.email}</p>
+            <p className="pjr-id">
+              <strong>ID de juego:</strong> {jugador.gameId} {jugador.subCodigo}
+            </p>
             {jugador.equipo && (
-              <p className="text-sm text-blue-600">Equipo: {jugador.equipo}</p>
+              <p className="pjr-equipo">🏅 Equipo: <span>{jugador.equipo}</span></p>
             )}
           </div>
         </div>
 
-        <button
-          onClick={cerrarSesion}
-          className={`${btnPrimary} bg-red-600 hover:bg-red-700`}
-        >
+        <button onClick={cerrarSesion} className="pjr-btn-salir">
           Cerrar sesión
         </button>
-        </div>
-    </MainLayout>
-    );
+      </div>
+    </section>
+  );
 }

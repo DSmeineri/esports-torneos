@@ -1,0 +1,28 @@
+/* mainlayout.css - Estilos específicos para el layout general */
+
+.lyt-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f3f4f6; /* gris claro */
+  color: #1f2937; /* gris oscuro */
+}
+
+.lyt-main {
+  flex: 1;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .lyt-main {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lyt-main {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}

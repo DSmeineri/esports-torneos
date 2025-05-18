@@ -1,0 +1,97 @@
+/* atk = admin tickets */
+
+.atk-container {
+  max-width: 600px;
+  margin: 3rem auto;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.atk-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.atk-busqueda {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.atk-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.atk-input.cantidad {
+  width: 80px;
+  text-align: center;
+}
+
+.atk-boton {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.65rem 1.2rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.atk-boton:hover {
+  background-color: #1e40af;
+}
+
+.atk-boton.green {
+  background-color: #16a34a;
+}
+
+.atk-boton.green:hover {
+  background-color: #15803d;
+}
+
+.atk-boton.red {
+  background-color: #dc2626;
+}
+
+.atk-boton.red:hover {
+  background-color: #b91c1c;
+}
+
+.atk-info {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+}
+
+.atk-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.atk-acciones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.atk-mensaje {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2563eb;
+  margin-top: 1rem;
+}
