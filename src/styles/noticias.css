@@ -12,13 +12,125 @@
   font-size: 1.75rem;
   font-weight: 700;
   color: #1f2937;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
+.nts-loading,
 .nts-text {
-  font-size: 1rem;
-  color: #4b5563;
-  line-height: 1.6;
   text-align: center;
+  color: #4b5563;
+  font-size: 1rem;
 }
+
+.nts-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.nts-card {
+  background-color: #f9fafb;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease;
+}
+
+.nts-card:hover {
+  transform: translateY(-4px);
+}
+
+.nts-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.nts-card-text {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.nts-card-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-align: right;
+}
+.nts-img-group {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.nts-img-wrapper {
+  flex: 1 1 30%;
+  max-width: 30%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.nts-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border-radius: 0.5rem;
+}
+
+.nts-img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+/* Modal de imagen */
+.nts-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.nts-modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  background-color: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nts-modal-img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.5rem;
+  display: block;
+}
+
+.nts-modal-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: #fff;
+  color: #000;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+

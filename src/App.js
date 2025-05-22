@@ -14,32 +14,42 @@ import AdminDashboard from "./components/AdminDashboard";
 import PerfilJugador from "./components/PerfilJugador";
 import Noticias from "./components/Noticias";
 import Contacto from "./components/contacto";
+import AdminNoticias from "./components/adminnoticias";
+
 
 import MainLayout from "./components/MainLayout";
-import RutaPrivadaLayout from "./components/RutaPrivadaLayout";
+import PrivateRoute from "./components/PrivateRoute";
+import AdminLayout from "./components/AdminLayout";
+
+// Componente wrapper para rutas privadas de usuario común
+const RutaPrivadaLayout = ({ children }) => (
+  <PrivateRoute>
+    <MainLayout>{children}</MainLayout>
+  </PrivateRoute>
+);
 
 function App() {
-  
   return (
     <Router>
       <Routes>
-
-        {/* 🌐 Rutas públicas envueltas en el layout */}
+        {/* 🌐 Rutas públicas */}
         <Route path="/" element={<MainLayout><RegistroJugador /></MainLayout>} />
         <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
         <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/noticias" element={<MainLayout><Noticias /></MainLayout>} />
         <Route path="/contacto" element={<MainLayout><Contacto /></MainLayout>} />
 
-        {/* 🔐 Rutas privadas con layout + validación */}
+        {/* 🔐 Usuario autenticado */}
         <Route path="/perfil" element={<RutaPrivadaLayout><PerfilJugador /></RutaPrivadaLayout>} />
         <Route path="/registro-equipo" element={<RutaPrivadaLayout><RegistroEquipo /></RutaPrivadaLayout>} />
         <Route path="/perfil-equipo" element={<RutaPrivadaLayout><PerfilEquipo /></RutaPrivadaLayout>} />
         <Route path="/torneos" element={<RutaPrivadaLayout><PanelTorneos /></RutaPrivadaLayout>} />
-        <Route path="/admin" element={<RutaPrivadaLayout><AdminDashboard /></RutaPrivadaLayout>} />
-        <Route path="/admin/crear-torneo" element={<RutaPrivadaLayout><CrearTorneo /></RutaPrivadaLayout>} />
-        <Route path="/admin/tickets" element={<RutaPrivadaLayout><AdminTickets /></RutaPrivadaLayout>} />
 
+        {/* 🔒 Solo Admin */}
+        <Route path="/admin" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminDashboard /></AdminLayout></PrivateRoute>} />
+        <Route path="/admin/crear-torneo" element={<PrivateRoute requireAdmin={true}><AdminLayout><CrearTorneo /></AdminLayout></PrivateRoute>} />
+        <Route path="/admin/tickets" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminTickets /></AdminLayout></PrivateRoute>} />
+        <Route path="/admin/noticias" element={<RutaPrivadaLayout requireAdmin={true}><AdminNoticias /></RutaPrivadaLayout>} />
       </Routes>
     </Router>
   );

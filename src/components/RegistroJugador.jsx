@@ -38,48 +38,50 @@ export default function RegistroJugador() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      const uid = userCred.user.uid;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
+    const uid = userCred.user.uid;
 
-      let fotoURL = "";
-      if (form.foto) {
-        const fotoRef = ref(storage, `fotosPerfil/${uid}`);
-        await uploadBytes(fotoRef, form.foto);
-        fotoURL = await getDownloadURL(fotoRef);
-      }
-
-      await setDoc(doc(db, "jugadores", uid), {
-        uid,
-        nombre: form.nombre,
-        apellido: form.apellido,
-        email: form.email,
-        gameId: form.gameId,
-        subCodigo: form.subCodigo,
-        equipo: form.equipo || null,
-        fotoURL,
-        tickets: 0,
-        creado: new Date(),
-      });
-
-      setMensaje("✅ Registro exitoso.");
-      setForm({
-        nombre: "",
-        apellido: "",
-        email: "",
-        password: "",
-        gameId: "",
-        subCodigo: "",
-        equipo: "",
-        foto: null,
-      });
-    } catch (error) {
-      console.error(error);
-      setMensaje("❌ Error al registrar: " + error.message);
+    let fotoURL = "";
+    if (form.foto) {
+      const fotoRef = ref(storage, `fotosPerfil/${uid}`);
+      await uploadBytes(fotoRef, form.foto);
+      fotoURL = await getDownloadURL(fotoRef);
     }
-  };
+
+    await setDoc(doc(db, "jugadores", uid), {
+      uid,
+      nombre: form.nombre,
+      apellido: form.apellido,
+      email: form.email,
+      gameId: form.gameId,
+      subCodigo: form.subCodigo,
+      equipo: form.equipo || null,
+      fotoURL,
+      tickets: 0,
+      creado: new Date(),
+      rol: "usuario" // ✅ Esta línea agrega el rol por defecto
+    });
+
+    setMensaje("✅ Registro exitoso.");
+    setForm({
+      nombre: "",
+      apellido: "",
+      email: "",
+      password: "",
+      gameId: "",
+      subCodigo: "",
+      equipo: "",
+      foto: null,
+    });
+  } catch (error) {
+    console.error(error);
+    setMensaje("❌ Error al registrar: " + error.message);
+  }
+};
+
 
   return (
     <section className="rjr-container">

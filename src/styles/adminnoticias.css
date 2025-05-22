@@ -1,0 +1,62 @@
+/* src/styles/adminnoticias.css */
+.adm-container {
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.adm-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.adm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.adm-label {
+  font-size: 0.9rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.adm-input,
+.adm-textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  resize: none;
+}
+
+.adm-btn {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.adm-btn:hover {
+  background-color: #1e40af;
+}
+
+.adm-msg {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #10b981;
+}

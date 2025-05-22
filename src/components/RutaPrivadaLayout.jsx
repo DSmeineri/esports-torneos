@@ -1,10 +1,11 @@
+// src/components/RutaPrivadaLayout.jsx
 import React from "react";
 import PrivateRoute from "./PrivateRoute";
 import MainLayout from "./MainLayout";
 
-export default function RutaPrivadaLayout({ children }) {
+export default function RutaPrivadaLayout({ children, requireAdmin = false }) {
   return (
-    <PrivateRoute>
+    <PrivateRoute requireAdmin={requireAdmin}>
       <MainLayout>{children}</MainLayout>
     </PrivateRoute>
   );

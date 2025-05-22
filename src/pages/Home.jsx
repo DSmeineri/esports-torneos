@@ -18,7 +18,6 @@ export default function Home() {
   }, []);
 
   return (
-    <MainLayout>
       <div className="hme-wrapper">
         {/* Sección de bienvenida */}
         <section className="hme-bienvenida">
@@ -58,6 +57,5 @@ export default function Home() {
           </div>
         </section>
       </div>
-    </MainLayout>
   );
 }
