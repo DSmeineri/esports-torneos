@@ -17,7 +17,7 @@ export default function Noticias() {
       if (error) {
         console.error("❌ Error al cargar noticias:", error);
       } else {
-        setNoticias(data);
+        setNoticias(data || []);
       }
 
       setCargando(false);
@@ -27,6 +27,12 @@ export default function Noticias() {
   }, []);
 
   const cerrarModal = () => setImagenAmpliada(null);
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "";
+    const date = typeof fecha === "string" ? new Date(fecha) : fecha;
+    return date.toLocaleDateString("es-AR");
+  };
 
   return (
     <div className="nts-container">
@@ -43,7 +49,7 @@ export default function Noticias() {
               <h3 className="nts-card-title">{noticia.titulo}</h3>
               <p className="nts-card-text">{noticia.contenido}</p>
 
-              {noticia.imagenes && noticia.imagenes.length > 0 && (
+              {Array.isArray(noticia.imagenes) && noticia.imagenes.length > 0 && (
                 <div className="nts-img-group">
                   {noticia.imagenes.map((url, index) => (
                     <div key={index} className="nts-img-wrapper">
@@ -59,14 +65,13 @@ export default function Noticias() {
               )}
 
               <p className="nts-card-date">
-                Publicado el: {new Date(noticia.fecha).toLocaleDateString()}
+                Publicado el: {formatearFecha(noticia.fecha)}
               </p>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal de imagen ampliada */}
       {imagenAmpliada && (
         <div className="nts-modal" onClick={cerrarModal}>
           <div className="nts-modal-content" onClick={(e) => e.stopPropagation()}>
