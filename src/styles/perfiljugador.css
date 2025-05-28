@@ -1,5 +1,4 @@
-/* perfiljugador.css */
-
+/* Contenedor general */
 .pjr-container {
   display: flex;
   justify-content: center;
@@ -7,15 +6,17 @@
   padding: 2rem 1rem;
 }
 
+/* Tarjeta del perfil */
 .pjr-card {
   background-color: #fff;
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   width: 100%;
   max-width: 600px;
 }
 
+/* Cabecera con imagen y datos */
 .pjr-header {
   display: flex;
   gap: 1.5rem;
@@ -24,8 +25,8 @@
 }
 
 .pjr-avatar {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   border-radius: 9999px;
   object-fit: cover;
   border: 2px solid #e5e7eb;
@@ -60,6 +61,15 @@
   margin-top: 0.25rem;
 }
 
+/* Estado sin equipo */
+.pjr-sin-equipo {
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Botón salir */
 .pjr-btn-salir {
   width: 100%;
   background-color: #dc2626;

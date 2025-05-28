@@ -1,189 +1,192 @@
-import React, { useState, useEffect } from "react";
-import { auth, db, storage } from "../firebase";
-import {
-    createUserWithEmailAndPassword,
-} from "firebase/auth";
-import {
-    collection, getDocs, addDoc, doc, setDoc
-} from "firebase/firestore";
-import {
-    ref, uploadBytes, getDownloadURL
-} from "firebase/storage";
+// src/components/RegistroJugador.jsx
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabase";
+import "../styles/registrojugador.css";
 
-const RegistroJugador = () => {
-    const [formData, setFormData] = useState({
+export default function RegistroJugador() {
+  const [form, setForm] = useState({
     nombre: "",
     apellido: "",
     email: "",
     password: "",
-    idJuego: "",
+    gameId: "",
     subCodigo: "",
     equipo: "",
     foto: null,
-    });
+  });
 
-    const [equipos, setEquipos] = useState([]);
-    const [mensaje, setMensaje] = useState("");
+  const [equipos, setEquipos] = useState([]);
+  const [mensaje, setMensaje] = useState("");
 
-    useEffect(() => {
-    const obtenerEquipos = async () => {
-        const snapshot = await getDocs(collection(db, "equipos"));
-        const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setEquipos(lista);
+  useEffect(() => {
+    const cargarEquipos = async () => {
+      const { data } = await supabase.from("equipos").select("nombre");
+      if (data) setEquipos(data);
     };
-    obtenerEquipos();
-    }, []);
+    cargarEquipos();
+  }, []);
 
-    const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "foto") {
-        setFormData({ ...formData, foto: files[0] });
-    } else {
-        setFormData({ ...formData, [name]: value });
-    }
-    };
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "foto" ? files[0] : value,
+    }));
+  };
 
-    const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensaje("");
 
     try {
-        const userCred = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password || "123456" // clave por defecto si no se personaliza
-        );
-        const uid = userCred.user.uid;
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
 
-        let fotoURL = "";
-        if (formData.foto) {
-        const storageRef = ref(storage, `fotosPerfil/${uid}`);
-        await uploadBytes(storageRef, formData.foto);
-        fotoURL = await getDownloadURL(storageRef);
-        }
+      if (signUpError || !signUpData.user) throw signUpError;
+      const uid = signUpData.user.id;
 
-        const jugadorData = {
+      let fotoURL = "";
+      if (form.foto) {
+        const nombreArchivo = `fotosperfil/${uid}_${Date.now()}`;
+        const { error: uploadError } = await supabase
+          .storage
+          .from("fotosperfil")
+          .upload(nombreArchivo, form.foto);
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase
+          .storage
+          .from("fotosperfil")
+          .getPublicUrl(nombreArchivo);
+        fotoURL = urlData?.publicUrl || "";
+      }
+
+      const { error: insertError } = await supabase.from("jugadores").insert([{
         uid,
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        email: formData.email,
-        idJuego: formData.idJuego,
-        subCodigo: formData.subCodigo,
-        equipo: formData.equipo,
+        nombre: form.nombre,
+        apellido: form.apellido,
+        email: form.email,
+        gameId: form.gameId,
+        subCodigo: form.subCodigo,
+        equipo: form.equipo || null,
         fotoURL,
-        creado: new Date(),
-        };
+        tickets: 0,
+        creado: new Date().toISOString(),
+        rol: "usuario",
+      }]);
 
-        await setDoc(doc(db, "jugadores", uid), jugadorData);
+      if (insertError) throw insertError;
 
-        setMensaje("Registro exitoso 🎉");
-        setFormData({
-        nombre: "", apellido: "", email: "", password: "",
-        idJuego: "", subCodigo: "", equipo: "", foto: null,
-        });
-    } catch (error) {
-        console.error("Error al registrar:", error.message);
-        setMensaje("❌ Error al registrar: " + error.message);
+      setMensaje("✅ Registro exitoso.");
+      setForm({
+        nombre: "",
+        apellido: "",
+        email: "",
+        password: "",
+        gameId: "",
+        subCodigo: "",
+        equipo: "",
+        foto: null,
+      });
+    } catch (err) {
+      console.error(err);
+      setMensaje("❌ Error al registrar: " + (err?.message || "Error desconocido"));
     }
-    };
+  };
 
-    return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow">
-        <h2 className="text-2xl font-bold mb-4">Registro de Jugador</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-4">
-            <input
-            type="text"
+  return (
+    <section className="rjr-container">
+      <form onSubmit={handleSubmit} className="rjr-form">
+        <h2 className="rjr-title">Registro de Jugador</h2>
+
+        <div className="rjr-grid2">
+          <input
             name="nombre"
             placeholder="Nombre"
-            value={formData.nombre}
+            value={form.nombre}
             onChange={handleChange}
-            className="w-1/2 input"
+            className="rjr-input"
             required
-            />
-            <input
-            type="text"
+          />
+          <input
             name="apellido"
             placeholder="Apellido"
-            value={formData.apellido}
+            value={form.apellido}
             onChange={handleChange}
-            className="w-1/2 input"
+            className="rjr-input"
             required
-            />
+          />
         </div>
 
-        <input
-            type="email"
+        <div className="rjr-grid2">
+          <input
             name="email"
+            type="email"
             placeholder="Correo electrónico"
-            value={formData.email}
+            value={form.email}
             onChange={handleChange}
-            className="w-full input"
+            className="rjr-input"
             required
-        />
-
-        <input
-            type="text"
-            name="idJuego"
-            placeholder="ID del juego (8 dígitos)"
-            maxLength="8"
-            value={formData.idJuego}
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
             onChange={handleChange}
-            pattern="\d{8}"
-            title="Debe tener 8 dígitos"
-            className="w-full input"
+            className="rjr-input"
             required
-        />
+          />
+        </div>
 
-        <input
-            type="text"
+        <div className="rjr-grid2">
+          <input
+            name="gameId"
+            placeholder="Game ID (8 dígitos)"
+            value={form.gameId}
+            onChange={handleChange}
+            pattern="^\d{8}$"
+            className="rjr-input"
+            required
+          />
+          <input
             name="subCodigo"
-            placeholder="Subcódigo (4 dígitos entre paréntesis)"
-            maxLength="6"
-            value={formData.subCodigo}
+            placeholder="Subcódigo (formato: (1234))"
+            value={form.subCodigo}
             onChange={handleChange}
-            pattern="\(\d{4}\)"
-            title="Debe tener este formato: (1234)"
-            className="w-full input"
+            pattern="^\(\d{4}\)$"
+            className="rjr-input"
             required
-        />
+          />
+        </div>
 
         <select
-            name="equipo"
-            value={formData.equipo}
-            onChange={handleChange}
-            className="w-full input"
+          name="equipo"
+          value={form.equipo}
+          onChange={handleChange}
+          className="rjr-input"
         >
-            <option value="">Selecciona un equipo (opcional)</option>
-            {equipos.map(e => (
-            <option key={e.id} value={e.nombre}>
-                {e.nombre}
+          <option value="">Selecciona un equipo (opcional)</option>
+          {equipos.map((eq, i) => (
+            <option key={i} value={eq.nombre}>
+              {eq.nombre}
             </option>
-            ))}
+          ))}
         </select>
 
         <input
-            type="file"
-            name="foto"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full"
+          name="foto"
+          type="file"
+          accept="image/*"
+          onChange={handleChange}
+          className="rjr-input"
         />
 
-        <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700"
-        >
-            Registrarse
-        </button>
-        </form>
-
-        {mensaje && (
-        <p className="mt-4 text-center text-green-600 font-semibold">
-            {mensaje}
-        </p>
-        )}
-    </div>
-    );
-};
-
-export default RegistroJugador;
+        <button type="submit" className="rjr-btn">Registrarse</button>
+        {mensaje && <p className="rjr-msg">{mensaje}</p>}
+      </form>
+    </section>
+  );
+}

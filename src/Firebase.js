@@ -1,26 +1,22 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-
 const firebaseConfig = {
-    apiKey: "AIzaSyDHGJgZAlHO6R9qrFo2Se8HpFhjDNrqT68",
-    authDomain: "esports-torneos.firebaseapp.com",
-    projectId: "esports-torneos",
-    storageBucket: "esports-torneos.firebasestorage.app",
-    messagingSenderId: "72708305253",
-    appId: "1:72708305253:web:575ff4ad584f8ff37af18c",
-    measurementId: "G-3XCYY183X6"
+  apiKey: "AIzaSyDHGJgZAlHO6R9qrFo2Se8HpFhjDNrqT68",
+  authDomain: "esports-torneos.firebaseapp.com",
+  projectId: "esports-torneos",
+  storageBucket: "esports-torneos.appspot.com", // ✅ corregido aquí
+  messagingSenderId: "72708305253",
+  appId: "1:72708305253:web:575ff4ad584f8ff37af18c",
+  measurementId: "G-3XCYY183X6"
 };
 
 const app = initializeApp(firebaseConfig);
 
-// Servicios de Firebase
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Exportaciones
 export { app, auth, db, storage };

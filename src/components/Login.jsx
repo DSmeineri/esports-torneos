@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
-import "../styles/login.css"; // ✅ Importamos el CSS modular
+import "../styles/login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,11 +11,17 @@ export default function Login() {
 
   const iniciarSesion = async (e) => {
     e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
+    setMensaje("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setMensaje("❌ Error al iniciar sesión: " + error.message);
+    } else {
       navigate("/perfil");
-    } catch (error) {
-      setMensaje("❌ Error al iniciar sesión.");
     }
   };
 

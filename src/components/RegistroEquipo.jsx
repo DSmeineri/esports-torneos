@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { auth, db, storage } from "../firebase";
-import { collection, addDoc, getDoc, doc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// src/components/RegistroEquipo.jsx
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
-import "../styles/registroequipo.css"; // ✅ Importar CSS dedicado
+import "../styles/registroequipo.css";
 
 export default function RegistroEquipo() {
   const [form, setForm] = useState({
@@ -11,50 +10,83 @@ export default function RegistroEquipo() {
     descripcion: "",
     logo: null,
   });
-
   const [mensaje, setMensaje] = useState("");
+  const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const obtenerUsuario = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUsuario(data?.user || null);
+    };
+    obtenerUsuario();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "logo") {
-      setForm({ ...form, logo: files[0] });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "logo" ? files[0] : value,
+    }));
+  };
+
+  const verificarSiYaTieneEquipo = async (uid) => {
+    const { data } = await supabase
+      .from("equipos")
+      .select("id")
+      .contains("integrantes", [{ uid }]);
+    return data && data.length > 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) return;
+    if (!usuario) return;
 
     try {
-      const jugadorDoc = await getDoc(doc(db, "jugadores", user.uid));
-      const jugadorData = jugadorDoc.exists() ? jugadorDoc.data() : null;
+      const uid = usuario.id;
+      const yaTiene = await verificarSiYaTieneEquipo(uid);
+      if (yaTiene) {
+        setMensaje("⚠️ Ya perteneces a un equipo. No puedes crear otro.");
+        return;
+      }
+
+      const { data: jugador } = await supabase
+        .from("jugadores")
+        .select("nombre, apellido")
+        .eq("uid", uid)
+        .single();
 
       let logoURL = "";
       if (form.logo) {
-        const logoRef = ref(storage, `logosEquipos/${user.uid}_${Date.now()}`);
-        await uploadBytes(logoRef, form.logo);
-        logoURL = await getDownloadURL(logoRef);
+        const nombreLogo = `logosEquipos/${uid}_${Date.now()}`;
+        const uploadRes = await supabase.storage
+          .from("logosEquipos")
+          .upload(nombreLogo, form.logo);
+        if (uploadRes.error) throw uploadRes.error;
+
+        const { data: urlData } = supabase.storage
+          .from("logosEquipos")
+          .getPublicUrl(nombreLogo);
+        logoURL = urlData.publicUrl;
       }
 
       const nuevoEquipo = {
         nombre: form.nombre,
         descripcion: form.descripcion,
         logoURL,
-        creadorUID: user.uid,
-        integrantes: jugadorData
-          ? [{ uid: user.uid, nombre: `${jugadorData.nombre} ${jugadorData.apellido}` }]
+        creadorUID: uid,
+        integrantes: jugador
+          ? [{ uid, nombre: `${jugador.nombre} ${jugador.apellido}` }]
           : [],
-        creado: new Date(),
+        ticketsEquipo: 0,
+        creado: new Date().toISOString(),
       };
 
-      await addDoc(collection(db, "equipos"), nuevoEquipo);
+      const { error } = await supabase.from("equipos").insert([nuevoEquipo]);
+      if (error) throw error;
+
       setMensaje("✅ Equipo registrado con éxito");
       setForm({ nombre: "", descripcion: "", logo: null });
-
       setTimeout(() => navigate("/perfil-equipo"), 2000);
     } catch (err) {
       console.error(err);
@@ -102,7 +134,6 @@ export default function RegistroEquipo() {
         </div>
 
         <button type="submit" className="reo-btn">Crear equipo</button>
-
         {mensaje && <p className="reo-msg">{mensaje}</p>}
       </form>
     </section>

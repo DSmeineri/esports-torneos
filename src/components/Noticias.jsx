@@ -1,22 +1,28 @@
-// src/components/Noticias.jsx
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase";
+import { supabase } from "../supabase";
 import "../styles/noticias.css";
 
 export default function Noticias() {
   const [noticias, setNoticias] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [imagenAmpliada, setImagenAmpliada] = useState(null); // 👈 Modal
+  const [imagenAmpliada, setImagenAmpliada] = useState(null);
 
   useEffect(() => {
     const obtenerNoticias = async () => {
-      const q = query(collection(db, "noticias"), orderBy("fecha", "desc"));
-      const snapshot = await getDocs(q);
-      const lista = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setNoticias(lista);
+      const { data, error } = await supabase
+        .from("noticias")
+        .select("*")
+        .order("fecha", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error al cargar noticias:", error);
+      } else {
+        setNoticias(data);
+      }
+
       setCargando(false);
     };
+
     obtenerNoticias();
   }, []);
 
@@ -53,7 +59,7 @@ export default function Noticias() {
               )}
 
               <p className="nts-card-date">
-                Publicado el: {new Date(noticia.fecha.seconds * 1000).toLocaleDateString()}
+                Publicado el: {new Date(noticia.fecha).toLocaleDateString()}
               </p>
             </div>
           ))}

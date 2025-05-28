@@ -1,8 +1,6 @@
 // src/components/AdminNoticias.jsx
-import React, { useState } from "react";
-import { db, storage } from "../firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import React, { useState, useRef } from "react";
+import { supabase } from "../supabase";
 import "../styles/adminnoticias.css";
 
 export default function AdminNoticias() {
@@ -10,48 +8,79 @@ export default function AdminNoticias() {
     titulo: "",
     contenido: "",
     autor: "",
-    imagenes: [],
   });
 
+  const [imagenes, setImagenes] = useState([]);
+  const [previewURLs, setPreviewURLs] = useState([]);
   const [mensaje, setMensaje] = useState("");
+  const inputRef = useRef(null);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "imagenes") {
-      setForm({ ...form, imagenes: Array.from(files).slice(0, 3) });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImagenes = (e) => {
+    const files = Array.from(e.target.files).slice(0, 3);
+    setImagenes(files);
+    setPreviewURLs(files.map((file) => URL.createObjectURL(file)));
+  };
+
+  const eliminarImagen = (index) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index));
+    setPreviewURLs((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const subirImagen = async (archivo) => {
+    const nombre = `noticias/${Date.now()}_${archivo.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("noticias")
+      .upload(nombre, archivo);
+
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = supabase.storage
+      .from("noticias")
+      .getPublicUrl(nombre);
+
+    return urlData?.publicUrl || "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.titulo || !form.contenido || !form.autor) {
-      return setMensaje("❌ Todos los campos son obligatorios");
+    setMensaje("");
+
+    if (!form.titulo.trim() || !form.contenido.trim() || !form.autor.trim()) {
+      setMensaje("❌ Todos los campos son obligatorios");
+      return;
     }
 
     try {
       const urls = [];
-      for (const img of form.imagenes) {
-        const imgRef = ref(storage, `noticias/${Date.now()}_${img.name}`);
-        await uploadBytes(imgRef, img);
-        const url = await getDownloadURL(imgRef);
+
+      for (const img of imagenes) {
+        const url = await subirImagen(img);
         urls.push(url);
       }
 
-      await addDoc(collection(db, "noticias"), {
-        titulo: form.titulo,
-        contenido: form.contenido,
-        autor: form.autor,
-        fecha: Timestamp.now(),
+      const { error: insertError } = await supabase.from("noticias").insert([{
+        titulo: form.titulo.trim(),
+        contenido: form.contenido.trim(),
+        autor: form.autor.trim(),
+        fecha: new Date().toISOString(),
         imagenes: urls,
-      });
+      }]);
+
+      if (insertError) throw insertError;
 
       setMensaje("✅ Noticia publicada exitosamente");
-      setForm({ titulo: "", contenido: "", autor: "", imagenes: [] });
+      setForm({ titulo: "", contenido: "", autor: "" });
+      setImagenes([]);
+      setPreviewURLs([]);
+      if (inputRef.current) inputRef.current.value = null;
     } catch (err) {
-      console.error(err);
-      setMensaje("❌ Error al publicar noticia");
+      console.error("Error al publicar noticia:", err);
+      setMensaje("❌ Ocurrió un error al subir la noticia.");
     }
   };
 
@@ -93,15 +122,25 @@ export default function AdminNoticias() {
         <input
           type="file"
           name="imagenes"
-          multiple
           accept="image/*"
-          onChange={handleChange}
+          multiple
+          onChange={handleImagenes}
           className="adm-input"
+          ref={inputRef}
         />
 
-        <button type="submit" className="adm-btn">
-          Publicar
-        </button>
+        {previewURLs.length > 0 && (
+          <div className="adm-preview">
+            {previewURLs.map((src, i) => (
+              <div key={i} className="adm-preview-wrapper">
+                <img src={src} alt={`preview-${i}`} className="adm-preview-img" />
+                <button type="button" className="adm-remove-img" onClick={() => eliminarImagen(i)}>❌</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button type="submit" className="adm-btn">Publicar</button>
       </form>
 
       {mensaje && <p className="adm-msg">{mensaje}</p>}

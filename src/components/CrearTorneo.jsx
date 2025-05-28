@@ -1,6 +1,6 @@
+// src/components/CrearTorneo.jsx
 import React, { useState } from "react";
-import { db } from "../firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { supabase } from "../supabase";
 import "../styles/creartorneo.css"; // ✅ Hoja de estilo exclusiva
 
 export default function CrearTorneo() {
@@ -22,20 +22,21 @@ export default function CrearTorneo() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensaje("");
 
     try {
-      const fechaTimestamp = Timestamp.fromDate(new Date(form.fecha));
-
-      await addDoc(collection(db, "torneos"), {
+      const { error } = await supabase.from("torneos").insert({
         nombre: form.nombre,
         juego: form.juego,
-        fecha: fechaTimestamp,
+        fecha: form.fecha, // ISO string (datetime-local del input)
         estado: "abierto",
-        jugadoresPorEquipo: parseInt(form.jugadoresPorEquipo),
-        equiposTotales: parseInt(form.equiposTotales),
-        ticketsPorJugador: parseInt(form.ticketsPorJugador),
-        equiposInscritos: [],
+        jugadores_por_equipo: parseInt(form.jugadoresPorEquipo),
+        equipos_totales: parseInt(form.equiposTotales),
+        tickets_por_jugador: parseInt(form.ticketsPorJugador),
+        equipos_inscritos: [],
       });
+
+      if (error) throw error;
 
       setMensaje("✅ Torneo creado correctamente.");
       setForm({

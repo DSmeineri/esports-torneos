@@ -2,45 +2,68 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { supabase } from "../supabase";
 import "../styles/navbar.css";
 
 export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const toggleMenu = () => setMenuAbierto(!menuAbierto);
-
-  const [user] = useAuthState(auth);
   const [nombreUsuario, setNombreUsuario] = useState("");
   const [esAdmin, setEsAdmin] = useState(false);
+  const [tieneEquipo, setTieneEquipo] = useState(false);
+  const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
 
+  const toggleMenu = () => setMenuAbierto(!menuAbierto);
+
   useEffect(() => {
-    const obtenerDatos = async () => {
-      if (user) {
-        const ref = doc(db, "jugadores", user.uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          setNombreUsuario(data.nombre || "Usuario");
-          setEsAdmin(data.rol === "admin");
-        }
+    const cargarUsuario = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user;
+      setUsuario(user);
+
+      if (!user) return;
+
+      // Obtener datos del jugador
+      const { data: jugador } = await supabase
+        .from("jugadores")
+        .select("nombre, rol")
+        .eq("uid", user.id)
+        .single();
+
+      if (jugador) {
+        setNombreUsuario(jugador.nombre || "Jugador");
+        setEsAdmin(jugador.rol === "admin");
       }
+
+      // Verificar si pertenece a un equipo
+      const { data: equipos } = await supabase
+        .from("equipos")
+        .select("integrantes");
+
+      const pertenece = equipos?.some(eq =>
+        eq.integrantes?.some(i => i.uid === user.id)
+      );
+
+      setTieneEquipo(pertenece);
     };
-    obtenerDatos();
-  }, [user]);
+
+    cargarUsuario();
+  }, []);
 
   const cerrarSesion = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
     navigate("/login");
+  };
+
+  const handleEquipoClick = () => {
+    navigate(tieneEquipo ? "/perfil-equipo" : "/registro-equipo");
+    setMenuAbierto(false);
   };
 
   return (
     <header className="nvr-header">
       <nav className="nvr-nav">
-        <Link to={user ? "/home" : "/"} className="nvr-logo">
+        <Link to={usuario ? "/home" : "/"} className="nvr-logo">
           EsportsTorneos
         </Link>
 
@@ -52,9 +75,16 @@ export default function Navbar() {
           <li><Link to="/torneos" onClick={toggleMenu} className="nvr-link">Torneos</Link></li>
           <li><Link to="/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
           <li><Link to="/perfil" onClick={toggleMenu} className="nvr-link">Perfil</Link></li>
-          <li><Link to="/contacto" onClick={toggleMenu} className="nvr-link">Contacto</Link></li>
 
-          {user && esAdmin && (
+          {usuario && (
+            <li>
+              <button onClick={handleEquipoClick} className="nvr-link" style={{ background: "none", border: "none" }}>
+                Equipo
+              </button>
+            </li>
+          )}
+
+          {usuario && esAdmin && (
             <li className="nvr-admin-dropdown">
               <span className="nvr-link nvr-admin-toggle">⚙️ Admin</span>
               <ul className="nvr-admin-submenu">
@@ -66,10 +96,13 @@ export default function Navbar() {
             </li>
           )}
 
-          {user ? (
-            <li>
-              <button onClick={cerrarSesion} className="nvr-link nvr-logout-btn">Cerrar sesión</button>
-            </li>
+          {usuario ? (
+            <>
+              <li className="nvr-link nombre-jugador">👋 {nombreUsuario}</li>
+              <li>
+                <button onClick={cerrarSesion} className="nvr-link nvr-logout-btn">Cerrar sesión</button>
+              </li>
+            </>
           ) : (
             <li>
               <Link to="/login" onClick={toggleMenu} className="nvr-link">Iniciar sesión</Link>

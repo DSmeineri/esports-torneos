@@ -1,37 +1,48 @@
 // src/components/PrivateRoute.jsx
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { supabase } from "../supabase";
 
 export default function PrivateRoute({ children, requireAdmin = false }) {
-  const [user, loading] = useAuthState(auth);
-  const [allowAccess, setAllowAccess] = useState(null); // null = aún verificando
-  const [checkingRole, setCheckingRole] = useState(true);
+  const [allowAccess, setAllowAccess] = useState(null); // null = en proceso
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const verificarRol = async () => {
-      if (user) {
-        const docRef = doc(db, "jugadores", user.uid);
-        const docSnap = await getDoc(docRef);
-        const data = docSnap.exists() ? docSnap.data() : null;
+    const verificarAcceso = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-        if (requireAdmin) {
-          setAllowAccess(data?.rol === "admin");
+      if (error || !user) {
+        setAllowAccess(false);
+        setChecking(false);
+        return;
+      }
+
+      if (requireAdmin) {
+        const { data: jugador, error: rolError } = await supabase
+          .from("jugadores")
+          .select("rol")
+          .eq("uid", user.id)
+          .single();
+
+        if (rolError || !jugador) {
+          setAllowAccess(false);
         } else {
-          setAllowAccess(true);
+          setAllowAccess(jugador.rol === "admin");
         }
       } else {
-        setAllowAccess(false);
+        setAllowAccess(true);
       }
-      setCheckingRole(false);
+
+      setChecking(false);
     };
 
-    if (!loading) verificarRol();
-  }, [user, loading, requireAdmin]);
+    verificarAcceso();
+  }, [requireAdmin]);
 
-  if (loading || checkingRole) {
+  if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-600 text-sm">
         Verificando acceso...
