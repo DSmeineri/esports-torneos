@@ -1,30 +1,46 @@
+// src/components/RutaSinEquipo.jsx
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { auth, db } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { collection, getDocs } from "firebase/firestore";
+import { supabase } from "../supabase";
 
 export default function RutaSinEquipo({ children }) {
-  const [user, loading] = useAuthState(auth);
   const [verificando, setVerificando] = useState(true);
   const [permitir, setPermitir] = useState(false);
 
   useEffect(() => {
     const verificar = async () => {
-      if (!user) return setPermitir(false);
-      const equiposSnapshot = await getDocs(collection(db, "equipos"));
-      const pertenece = equiposSnapshot.docs.some((doc) =>
-        doc.data().integrantes?.some((i) => i.uid === user.uid)
-      );
-      setPermitir(!pertenece);
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData?.user;
+
+      if (!user) {
+        setPermitir(false);
+        setVerificando(false);
+        return;
+      }
+
+      const { data: equipos, error } = await supabase
+        .from("equipos")
+        .select("integrantes");
+
+      if (error) {
+        console.error("❌ Error al verificar equipo:", error);
+        setPermitir(false);
+      } else {
+        const pertenece = equipos?.some(eq =>
+          eq.integrantes?.some(i => i.uid === user.id)
+        );
+        setPermitir(!pertenece);
+      }
+
       setVerificando(false);
     };
 
-    if (!loading) verificar();
-  }, [user, loading]);
+    verificar();
+  }, []);
 
-  if (loading || verificando) return <p className="text-center mt-10">Verificando acceso...</p>;
+  if (verificando) {
+    return <p className="text-center mt-10">Verificando acceso...</p>;
+  }
 
   return permitir ? children : <Navigate to="/perfil-equipo" replace />;
 }
-

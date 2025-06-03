@@ -1,7 +1,6 @@
 // src/components/AdminTickets.jsx
 import React, { useState } from "react";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { supabase } from "../supabase";
 import "../styles/admintickets.css";
 
 export default function AdminTickets() {
@@ -17,14 +16,18 @@ export default function AdminTickets() {
   // 🎮 Buscar jugador por UID
   const buscarJugador = async () => {
     try {
-      const docRef = doc(db, "jugadores", uid);
-      const snapshot = await getDoc(docRef);
-      if (snapshot.exists()) {
-        setJugador({ id: snapshot.id, ...snapshot.data() });
-        setMensaje("");
-      } else {
+      const { data, error } = await supabase
+        .from("jugadores")
+        .select("*")
+        .eq("uid", uid)
+        .single();
+
+      if (error || !data) {
         setJugador(null);
         setMensaje("⚠️ Jugador no encontrado.");
+      } else {
+        setJugador(data);
+        setMensaje("");
       }
     } catch (err) {
       console.error(err);
@@ -32,18 +35,21 @@ export default function AdminTickets() {
     }
   };
 
-  // 🎮 Buscar equipo por nombre
+  // 🤝 Buscar equipo por nombre
   const buscarEquipo = async () => {
     try {
-      const q = query(collection(db, "equipos"), where("nombre", "==", nombreEquipo));
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const doc = snapshot.docs[0];
-        setEquipo({ id: doc.id, ...doc.data() });
-        setMensajeEquipo("");
-      } else {
+      const { data, error } = await supabase
+        .from("equipos")
+        .select("*")
+        .eq("nombre", nombreEquipo)
+        .single();
+
+      if (error || !data) {
         setEquipo(null);
         setMensajeEquipo("⚠️ Equipo no encontrado.");
+      } else {
+        setEquipo(data);
+        setMensajeEquipo("");
       }
     } catch (err) {
       console.error(err);
@@ -59,7 +65,13 @@ export default function AdminTickets() {
       : Math.max(0, (jugador.tickets || 0) - cantidad);
 
     try {
-      await updateDoc(doc(db, "jugadores", jugador.id), { tickets: nuevos });
+      const { error } = await supabase
+        .from("jugadores")
+        .update({ tickets: nuevos })
+        .eq("uid", jugador.uid);
+
+      if (error) throw error;
+
       setJugador({ ...jugador, tickets: nuevos });
       setMensaje(`✅ Tickets ${tipo === "sumar" ? "otorgados" : "debitados"} correctamente.`);
     } catch (err) {
@@ -75,7 +87,13 @@ export default function AdminTickets() {
     const nuevos = tipo === "sumar" ? actuales + cantidad : Math.max(0, actuales - cantidad);
 
     try {
-      await updateDoc(doc(db, "equipos", equipo.id), { ticketsEquipo: nuevos });
+      const { error } = await supabase
+        .from("equipos")
+        .update({ ticketsEquipo: nuevos })
+        .eq("id", equipo.id);
+
+      if (error) throw error;
+
       setEquipo({ ...equipo, ticketsEquipo: nuevos });
       setMensajeEquipo(`✅ Tickets ${tipo === "sumar" ? "otorgados" : "debitados"} correctamente al equipo.`);
     } catch (err) {

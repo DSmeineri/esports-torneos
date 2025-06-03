@@ -1,8 +1,9 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import RegistroJugador from "./components/RegistroJugador";
+import RegistroCuenta from "./components/registrocuenta";
+import CompletarPerfil from "./components/completarperfil.jsx";
 import Login from "./components/Login";
 import RegistroEquipo from "./components/RegistroEquipo";
 import PerfilEquipo from "./components/PerfilEquipo";
@@ -19,7 +20,7 @@ import AdminNoticias from "./components/adminnoticias";
 import MainLayout from "./components/MainLayout";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./components/AdminLayout";
-import RutaSinEquipo from "./components/rutasinequipo"; // ✅ Nuevo componente
+import RutaSinEquipo from "./components/rutasinequipo";
 
 // Componente wrapper para rutas privadas de usuario común
 const RutaPrivadaLayout = ({ children }) => (
@@ -33,9 +34,11 @@ function App() {
     <Router>
       <Routes>
         {/* 🌐 Rutas públicas */}
-        <Route path="/" element={<MainLayout><RegistroJugador /></MainLayout>} />
-        <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/registro-cuenta" element={<MainLayout><RegistroCuenta /></MainLayout>} />
+        <Route path="/completar-perfil" element={<MainLayout><CompletarPerfil /></MainLayout>} />
+        <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
         <Route path="/noticias" element={<MainLayout><Noticias /></MainLayout>} />
         <Route path="/contacto" element={<MainLayout><Contacto /></MainLayout>} />
 

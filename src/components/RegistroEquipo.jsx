@@ -38,12 +38,28 @@ export default function RegistroEquipo() {
     return data && data.length > 0;
   };
 
+  const esperarSesionActiva = async () => {
+    for (let i = 0; i < 10; i++) {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) return data.session.user;
+      await new Promise((res) => setTimeout(res, 300));
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!usuario) return;
+    setMensaje("");
+
+    const user = usuario || (await esperarSesionActiva());
+    if (!user) {
+      setMensaje("❌ No hay sesión activa. Inicia sesión para crear un equipo.");
+      return;
+    }
 
     try {
-      const uid = usuario.id;
+      const uid = user.id;
+
       const yaTiene = await verificarSiYaTieneEquipo(uid);
       if (yaTiene) {
         setMensaje("⚠️ Ya perteneces a un equipo. No puedes crear otro.");
@@ -59,10 +75,11 @@ export default function RegistroEquipo() {
       let logoURL = "";
       if (form.logo) {
         const nombreLogo = `logosEquipos/${uid}_${Date.now()}`;
-        const uploadRes = await supabase.storage
+        const { error: uploadError } = await supabase
+          .storage
           .from("logosEquipos")
           .upload(nombreLogo, form.logo);
-        if (uploadRes.error) throw uploadRes.error;
+        if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
           .from("logosEquipos")
@@ -90,7 +107,7 @@ export default function RegistroEquipo() {
       setTimeout(() => navigate("/perfil-equipo"), 2000);
     } catch (err) {
       console.error(err);
-      setMensaje("❌ Error al registrar el equipo");
+      setMensaje("❌ Error al registrar el equipo: " + (err.message || "Error desconocido"));
     }
   };
 

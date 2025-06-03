@@ -23,7 +23,6 @@ export default function Navbar() {
 
       if (!user) return;
 
-      // Obtener datos del jugador
       const { data: jugador } = await supabase
         .from("jugadores")
         .select("nombre, rol")
@@ -35,7 +34,6 @@ export default function Navbar() {
         setEsAdmin(jugador.rol === "admin");
       }
 
-      // Verificar si pertenece a un equipo
       const { data: equipos } = await supabase
         .from("equipos")
         .select("integrantes");
@@ -60,21 +58,29 @@ export default function Navbar() {
     setMenuAbierto(false);
   };
 
+  const handlePerfilClick = () => {
+    navigate(usuario ? "/perfil" : "/registro-cuenta");
+    setMenuAbierto(false);
+  };
+
   return (
     <header className="nvr-header">
       <nav className="nvr-nav">
-        <Link to={usuario ? "/home" : "/"} className="nvr-logo">
-          EsportsTorneos
-        </Link>
+        <Link to="/home" className="nvr-logo">EsportsTorneos</Link>
 
         <button onClick={toggleMenu} className="nvr-menu-button" aria-label="Abrir menú">
           {menuAbierto ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         <ul className={`nvr-links ${menuAbierto ? "nvr-links-open" : ""}`}>
+          <li><Link to="/home" onClick={toggleMenu} className="nvr-link">Inicio</Link></li>
           <li><Link to="/torneos" onClick={toggleMenu} className="nvr-link">Torneos</Link></li>
           <li><Link to="/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
-          <li><Link to="/perfil" onClick={toggleMenu} className="nvr-link">Perfil</Link></li>
+          <li>
+            <button onClick={handlePerfilClick} className="nvr-link" style={{ background: "none", border: "none" }}>
+              Perfil
+            </button>
+          </li>
 
           {usuario && (
             <li>
