@@ -1,0 +1,175 @@
+/* visualizaciontorneos.css - vzt = visualización torneos */
+
+.vzt-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.vzt-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+.vzt-listado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.vzt-torneo-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.vzt-torneo-btn:hover {
+  background-color: #1e40af;
+}
+
+.vzt-detalle {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.vzt-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.vzt-juego-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #f3f4f6;
+}
+
+.vzt-nombre {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.vzt-detalle p {
+  margin: 0.3rem 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.vzt-subtitulo {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.vzt-equipos {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+
+.vzt-equipos li {
+  padding: 0.35rem 0;
+  font-weight: 500;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.vzt-vacio {
+  font-style: italic;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+}
+
+.vzt-fases {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+.vzt-fases h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.vzt-fase {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f1f5f9;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.vzt-fase h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.vzt-fase ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.vzt-fase li {
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  color: #334155;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+/* Diagrama tipo árbol responsivo */
+.vzt-bracket {
+  overflow-x: auto;
+  padding: 1rem 0;
+}
+
+.vzt-bracket-grid {
+  display: flex;
+  gap: 2rem;
+  min-width: 600px;
+}
+
+.vzt-bracket-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vzt-bracket-match {
+  background-color: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #0c4a6e;
+  min-width: 140px;
+  word-break: break-word;
+}

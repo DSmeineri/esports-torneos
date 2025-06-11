@@ -40,7 +40,7 @@ export default function Navbar() {
   return (
     <header className="nvr-header">
       <nav className="nvr-nav">
-        <Link to={user ? "/home" : "/"} className="nvr-logo">
+        <Link to="/home" className="nvr-logo">
           EsportsTorneos
         </Link>
 
@@ -49,6 +49,7 @@ export default function Navbar() {
         </button>
 
         <ul className={`nvr-links ${menuAbierto ? "nvr-links-open" : ""}`}>
+          <li><Link to="/home" onClick={toggleMenu} className="nvr-link">Inicio</Link></li>
           <li><Link to="/torneos" onClick={toggleMenu} className="nvr-link">Torneos</Link></li>
           <li><Link to="/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
           <li><Link to="/perfil" onClick={toggleMenu} className="nvr-link">Perfil</Link></li>
@@ -62,17 +63,21 @@ export default function Navbar() {
                 <li><Link to="/admin/crear-torneo" onClick={toggleMenu} className="nvr-link">Crear Torneo</Link></li>
                 <li><Link to="/admin/tickets" onClick={toggleMenu} className="nvr-link">Tickets</Link></li>
                 <li><Link to="/admin/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
+                <li><Link to="/admin/torneos" onClick={toggleMenu} className="nvr-link">Gestión de Torneos</Link></li> {/* ✅ NUEVO */}
               </ul>
             </li>
           )}
 
           {user ? (
-            <li>
-              <button onClick={cerrarSesion} className="nvr-link nvr-logout-btn">Cerrar sesión</button>
-            </li>
+            <>
+              <li className="nvr-link nombre-jugador">👋 {nombreUsuario}</li>
+              <li>
+                <button onClick={cerrarSesion} className="nvr-link nvr-logout-btn">Cerrar sesión</button>
+              </li>
+            </>
           ) : (
             <li>
-              <Link to="/login" onClick={toggleMenu} className="nvr-link">Iniciar sesión</Link>
+              <Link to="/registrarse" onClick={toggleMenu} className="nvr-link">Registrarse</Link>
             </li>
           )}
         </ul>

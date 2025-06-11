@@ -8,7 +8,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import "../styles/perfilequipo.css"; // ✅ Estilos específicos
+import "../styles/perfilequipo.css";
 
 export default function PerfilEquipo() {
   const [equipo, setEquipo] = useState(null);
@@ -180,6 +180,14 @@ export default function PerfilEquipo() {
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Bloque de Tickets del Equipo */}
+      <section className="peo-tickets">
+        <h3>Tickets del equipo</h3>
+        <div className="peo-tickets-box">
+          🎟️ <strong>{equipo.ticketsEquipo || 0}</strong> tickets disponibles
+        </div>
       </section>
     </div>
   );

@@ -119,3 +119,31 @@
   color: #16a34a;
   margin-top: 0.5rem;
 }
+
+/* 🔷 Sección de tickets del equipo */
+.peo-tickets {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.peo-tickets h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.peo-tickets p {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.peo-tickets strong {
+  font-weight: 700;
+  color: #111827;
+}

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/admindashboard.css"; // ✅ Importar archivo de estilos dedicado
+import "../styles/admindashboard.css"; // ✅ Estilos dedicados
 
 export default function AdminDashboard() {
   return (
@@ -30,8 +30,8 @@ export default function AdminDashboard() {
         <div className="ads-card ads-card-purple">
           <h2 className="ads-card-title">📋 Torneos activos</h2>
           <p className="ads-texto">Revisá el estado y participantes actuales.</p>
-          <Link to="/torneos" className="ads-boton purple">
-            Ver Torneos
+          <Link to="/admin/gestion-torneos" className="ads-boton purple">
+            Gestionar Torneos
           </Link>
         </div>
       </div>
