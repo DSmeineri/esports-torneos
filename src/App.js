@@ -2,14 +2,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import RegistroJugador from "./components/RegistroJugador"; // ✅ único registro
+import RegistroJugador from "./components/RegistroJugador";
 import Login from "./components/Login";
 import RegistroEquipo from "./components/RegistroEquipo";
 import PerfilEquipo from "./components/PerfilEquipo";
 import PanelTorneos from "./components/PanelTorneos";
-import VisualizacionTorneos from "./components/visualizaciontorneos"; // ✅ nuevo
+import VisualizacionTorneos from "./components/visualizaciontorneos";
 import AdminTickets from "./components/AdminTickets";
-import AdminGestionTorneos from "./components/admingestiontorneos"; // ✅ nuevo
+import AdminGestionTorneos from "./components/admingestiontorneos";
 import Home from "./pages/Home";
 import AdminDashboard from "./components/AdminDashboard";
 import PerfilJugador from "./components/PerfilJugador";
@@ -39,7 +39,7 @@ function App() {
         <Route path="/noticias" element={<MainLayout><Noticias /></MainLayout>} />
         <Route path="/contacto" element={<MainLayout><Contacto /></MainLayout>} />
 
-        {/* 🔐 Usuario autenticado */}
+        {/* 🔐 Rutas protegidas (usuarios autenticados) */}
         <Route path="/perfil" element={<RutaPrivadaLayout><PerfilJugador /></RutaPrivadaLayout>} />
         <Route path="/registro-equipo" element={<RutaPrivadaLayout><RegistroEquipo /></RutaPrivadaLayout>} />
         <Route path="/perfil-equipo" element={<RutaPrivadaLayout><PerfilEquipo /></RutaPrivadaLayout>} />
@@ -47,11 +47,26 @@ function App() {
         <Route path="/torneos/:id" element={<RutaPrivadaLayout><VisualizacionTorneos /></RutaPrivadaLayout>} />
 
         {/* 🔒 Rutas exclusivas de administrador */}
-        <Route path="/admin" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminDashboard /></AdminLayout></PrivateRoute>} />
-        <Route path="/admin/crear-torneo" element={<PrivateRoute requireAdmin={true}><AdminLayout><CrearTorneo /></AdminLayout></PrivateRoute>} />
-        <Route path="/admin/tickets" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminTickets /></AdminLayout></PrivateRoute>} />
-        <Route path="/admin/torneos" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminGestionTorneos /></AdminLayout></PrivateRoute>} />
-        <Route path="/admin/noticias" element={<PrivateRoute requireAdmin={true}><AdminLayout><AdminNoticias /></AdminLayout></PrivateRoute>} />
+        <Route path="/admin" element={
+          <PrivateRoute requireAdmin={true}>
+            <AdminLayout><AdminDashboard /></AdminLayout>
+          </PrivateRoute>
+        } />
+        <Route path="/admin/torneos" element={
+          <PrivateRoute requireAdmin={true}>
+            <AdminLayout><AdminGestionTorneos /></AdminLayout>
+          </PrivateRoute>
+        } />
+        <Route path="/admin/tickets" element={
+          <PrivateRoute requireAdmin={true}>
+            <AdminLayout><AdminTickets /></AdminLayout>
+          </PrivateRoute>
+        } />
+        <Route path="/admin/noticias" element={
+          <PrivateRoute requireAdmin={true}>
+            <AdminLayout><AdminNoticias /></AdminLayout>
+          </PrivateRoute>
+        } />
       </Routes>
     </Router>
   );

@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -7,13 +6,14 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import "../styles/navbar.css";
+import logoIcon from "../assets/logo.png"; // ✅ Asegúrate de tener este logo
 
 export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const toggleMenu = () => setMenuAbierto(!menuAbierto);
 
   const [user] = useAuthState(auth);
-  const [nombreUsuario, setNombreUsuario] = useState("");
+  const [usuario, setUsuario] = useState(null);
   const [esAdmin, setEsAdmin] = useState(false);
   const navigate = useNavigate();
 
@@ -24,9 +24,11 @@ export default function Navbar() {
         const snap = await getDoc(ref);
         if (snap.exists()) {
           const data = snap.data();
-          setNombreUsuario(data.nombre || "Usuario");
+          setUsuario(data);
           setEsAdmin(data.rol === "admin");
         }
+      } else {
+        setUsuario(null);
       }
     };
     obtenerDatos();
@@ -37,11 +39,20 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const irAPerfilEquipo = () => {
+    if (usuario?.equipo) {
+      navigate("/perfil-equipo");
+    } else {
+      alert("⚠️ No perteneces a ningún equipo actualmente.");
+    }
+  };
+
   return (
     <header className="nvr-header">
       <nav className="nvr-nav">
         <Link to="/home" className="nvr-logo">
-          EsportsTorneos
+          <img src={logoIcon} alt="Logo" className="nvr-logo-icon" />
+          <span>EsportsTorneos</span>
         </Link>
 
         <button onClick={toggleMenu} className="nvr-menu-button" aria-label="Abrir menú">
@@ -52,8 +63,16 @@ export default function Navbar() {
           <li><Link to="/home" onClick={toggleMenu} className="nvr-link">Inicio</Link></li>
           <li><Link to="/torneos" onClick={toggleMenu} className="nvr-link">Torneos</Link></li>
           <li><Link to="/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
-          <li><Link to="/perfil" onClick={toggleMenu} className="nvr-link">Perfil</Link></li>
-          <li><Link to="/contacto" onClick={toggleMenu} className="nvr-link">Contacto</Link></li>
+
+          {user && (
+            <>
+              <li><Link to="/perfil" onClick={toggleMenu} className="nvr-link">Perfil</Link></li>
+              <li><button onClick={irAPerfilEquipo} className="nvr-link nvr-btn-simple">Equipo</button></li>
+              {usuario?.tickets !== undefined && (
+                <li className="nvr-tickets">🎫 {usuario.tickets} tickets</li>
+              )}
+            </>
+          )}
 
           {user && esAdmin && (
             <li className="nvr-admin-dropdown">
@@ -63,22 +82,23 @@ export default function Navbar() {
                 <li><Link to="/admin/crear-torneo" onClick={toggleMenu} className="nvr-link">Crear Torneo</Link></li>
                 <li><Link to="/admin/tickets" onClick={toggleMenu} className="nvr-link">Tickets</Link></li>
                 <li><Link to="/admin/noticias" onClick={toggleMenu} className="nvr-link">Noticias</Link></li>
-                <li><Link to="/admin/torneos" onClick={toggleMenu} className="nvr-link">Gestión de Torneos</Link></li> {/* ✅ NUEVO */}
+                <li><Link to="/admin/torneos" onClick={toggleMenu} className="nvr-link">Gestión de Torneos</Link></li>
               </ul>
             </li>
           )}
 
           {user ? (
             <>
-              <li className="nvr-link nombre-jugador">👋 {nombreUsuario}</li>
+              <li className="nvr-link nombre-jugador">👋 {usuario?.nickname || "Jugador"}</li>
               <li>
                 <button onClick={cerrarSesion} className="nvr-link nvr-logout-btn">Cerrar sesión</button>
               </li>
             </>
           ) : (
-            <li>
-              <Link to="/registrarse" onClick={toggleMenu} className="nvr-link">Registrarse</Link>
-            </li>
+            <>
+              <li><Link to="/registrarse" onClick={toggleMenu} className="nvr-link">Registrarse</Link></li>
+              <li><Link to="/login" onClick={toggleMenu} className="nvr-link">Iniciar sesión</Link></li>
+            </>
           )}
         </ul>
       </nav>

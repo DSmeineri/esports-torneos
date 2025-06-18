@@ -5,8 +5,8 @@ import {
   doc,
   getDoc,
   updateDoc,
-  writeBatch,
-  setDoc,
+  addDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import "../styles/admingestiontorneos.css";
@@ -17,9 +17,19 @@ export default function AdminGestionTorneos() {
   const [equipos, setEquipos] = useState([]);
   const [estado, setEstado] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [equipoAInscribir, setEquipoAInscribir] = useState("");
   const [faseActual, setFaseActual] = useState("");
   const [fases, setFases] = useState([]);
+
+  const [nuevoTorneo, setNuevoTorneo] = useState({
+    nombre: "",
+    juego: "Mobile Legends",
+    fecha: "",
+    jugadoresPorEquipo: 5,
+    equiposTotales: 8,
+    ticketsPorJugador: 1,
+    ticketsPorEquipo: 0,
+    descripcion: "",
+  });
 
   useEffect(() => {
     const obtenerTorneos = async () => {
@@ -38,67 +48,124 @@ export default function AdminGestionTorneos() {
 
     const equipoList = [];
     for (const e of torneo.equiposInscritos || []) {
-      const equipoSnap = await getDoc(doc(db, "equipos", e.equipoId));
-      if (equipoSnap.exists()) {
-        equipoList.push({ id: equipoSnap.id, ...equipoSnap.data() });
-      }
+      const snap = await getDoc(doc(db, "equipos", e.equipoId));
+      if (snap.exists()) equipoList.push({ id: snap.id, ...snap.data() });
     }
     setEquipos(equipoList);
   };
 
   const actualizarEstado = async () => {
     try {
-      const torneoRef = doc(db, "torneos", torneoSeleccionado.id);
-      await updateDoc(torneoRef, { estado });
-      setMensaje("✅ Estado actualizado correctamente.");
+      await updateDoc(doc(db, "torneos", torneoSeleccionado.id), { estado });
+      setMensaje("✅ Estado actualizado.");
     } catch (err) {
       console.error(err);
-      setMensaje("❌ Error al actualizar el estado.");
+      setMensaje("❌ Error al actualizar estado.");
     }
   };
 
   const actualizarFase = async () => {
     try {
-      const torneoRef = doc(db, "torneos", torneoSeleccionado.id);
-      await updateDoc(torneoRef, { faseActual });
-      setMensaje("✅ Fase actualizada correctamente.");
+      await updateDoc(doc(db, "torneos", torneoSeleccionado.id), {
+        faseActual,
+      });
+      setMensaje("✅ Fase actualizada.");
     } catch (err) {
       console.error(err);
-      setMensaje("❌ Error al actualizar la fase.");
+      setMensaje("❌ Error al actualizar fase.");
     }
   };
 
   const guardarBracket = async () => {
     try {
-      const torneoRef = doc(db, "torneos", torneoSeleccionado.id);
-      await updateDoc(torneoRef, { fases });
-      setMensaje("✅ Bracket actualizado correctamente.");
+      await updateDoc(doc(db, "torneos", torneoSeleccionado.id), {
+        fases,
+      });
+      setMensaje("✅ Bracket guardado.");
     } catch (err) {
       console.error(err);
-      setMensaje("❌ Error al guardar el bracket.");
+      setMensaje("❌ Error al guardar bracket.");
     }
   };
 
   const agregarFase = () => {
-    const nuevaFase = { nombre: `Fase ${fases.length + 1}`, enfrentamientos: [] };
-    setFases([...fases, nuevaFase]);
+    setFases([...fases, { nombre: `Fase ${fases.length + 1}`, enfrentamientos: [] }]);
   };
 
-  const agregarEnfrentamiento = (faseIndex) => {
-    const nuevasFases = [...fases];
-    nuevasFases[faseIndex].enfrentamientos.push({ equipo1: "", equipo2: "", resultado: "" });
-    setFases(nuevasFases);
+  const agregarEnfrentamiento = (faseIdx) => {
+    const actualizadas = [...fases];
+    actualizadas[faseIdx].enfrentamientos.push({
+      equipo1: "",
+      equipo2: "",
+      resultado: "",
+    });
+    setFases(actualizadas);
   };
 
-  const actualizarEnfrentamiento = (faseIndex, matchIndex, campo, valor) => {
-    const nuevasFases = [...fases];
-    nuevasFases[faseIndex].enfrentamientos[matchIndex][campo] = valor;
-    setFases(nuevasFases);
+  const actualizarEnfrentamiento = (faseIdx, matchIdx, campo, valor) => {
+    const actualizadas = [...fases];
+    actualizadas[faseIdx].enfrentamientos[matchIdx][campo] = valor;
+    setFases(actualizadas);
+  };
+
+  const crearTorneo = async (e) => {
+    e.preventDefault();
+    try {
+      const fechaTimestamp = Timestamp.fromDate(new Date(nuevoTorneo.fecha));
+      await addDoc(collection(db, "torneos"), {
+        ...nuevoTorneo,
+        fecha: fechaTimestamp,
+        estado: "abierto",
+        faseActual: "pendiente",
+        equiposInscritos: [],
+        fases: [],
+        jugadoresPorEquipo: parseInt(nuevoTorneo.jugadoresPorEquipo),
+        equiposTotales: parseInt(nuevoTorneo.equiposTotales),
+        ticketsPorJugador: parseInt(nuevoTorneo.ticketsPorJugador),
+        ticketsPorEquipo: parseInt(nuevoTorneo.ticketsPorEquipo),
+      });
+
+      setMensaje("✅ Torneo creado exitosamente.");
+      setNuevoTorneo({
+        nombre: "",
+        juego: "Mobile Legends",
+        fecha: "",
+        jugadoresPorEquipo: 5,
+        equiposTotales: 8,
+        ticketsPorJugador: 1,
+        ticketsPorEquipo: 0,
+        descripcion: "",
+      });
+    } catch (err) {
+      console.error(err);
+      setMensaje("❌ Error al crear torneo.");
+    }
   };
 
   return (
     <div className="agt-container">
       <h2 className="agt-title">Administración de Torneos</h2>
+
+      <div className="agt-creacion-torneo">
+        <h3>Crear Torneo</h3>
+        <form onSubmit={crearTorneo} className="agt-form">
+          <input name="nombre" placeholder="Nombre del torneo" className="agt-input"
+            value={nuevoTorneo.nombre} onChange={e => setNuevoTorneo({ ...nuevoTorneo, nombre: e.target.value })} required />
+          <input name="fecha" type="datetime-local" className="agt-input"
+            value={nuevoTorneo.fecha} onChange={e => setNuevoTorneo({ ...nuevoTorneo, fecha: e.target.value })} required />
+          <input type="number" name="jugadoresPorEquipo" min="1" className="agt-input"
+            value={nuevoTorneo.jugadoresPorEquipo} onChange={e => setNuevoTorneo({ ...nuevoTorneo, jugadoresPorEquipo: e.target.value })} required />
+          <input type="number" name="equiposTotales" min="2" className="agt-input"
+            value={nuevoTorneo.equiposTotales} onChange={e => setNuevoTorneo({ ...nuevoTorneo, equiposTotales: e.target.value })} required />
+          <input type="number" name="ticketsPorJugador" min="0" className="agt-input"
+            value={nuevoTorneo.ticketsPorJugador} onChange={e => setNuevoTorneo({ ...nuevoTorneo, ticketsPorJugador: e.target.value })} />
+          <input type="number" name="ticketsPorEquipo" min="0" className="agt-input"
+            value={nuevoTorneo.ticketsPorEquipo} onChange={e => setNuevoTorneo({ ...nuevoTorneo, ticketsPorEquipo: e.target.value })} />
+          <textarea className="agt-input" rows="3" placeholder="Descripción o reglas del torneo"
+            value={nuevoTorneo.descripcion} onChange={e => setNuevoTorneo({ ...nuevoTorneo, descripcion: e.target.value })}></textarea>
+          <button type="submit" className="agt-form-button">Crear torneo</button>
+        </form>
+      </div>
 
       <div className="agt-listado">
         {torneos.map((t) => (
@@ -114,7 +181,7 @@ export default function AdminGestionTorneos() {
           <p><strong>Juego:</strong> {torneoSeleccionado.juego}</p>
           <p><strong>Fecha:</strong> {new Date(torneoSeleccionado.fecha.seconds * 1000).toLocaleDateString()}</p>
           <p><strong>Estado:</strong> {torneoSeleccionado.estado}</p>
-          <p><strong>Equipos inscritos:</strong> {torneoSeleccionado.equiposInscritos?.length || 0} / {torneoSeleccionado.equiposTotales}</p>
+          <p><strong>Equipos inscritos:</strong> {torneoSeleccionado.equiposInscritos?.length} / {torneoSeleccionado.equiposTotales}</p>
 
           <label className="agt-label">Cambiar estado:</label>
           <select value={estado} onChange={(e) => setEstado(e.target.value)} className="agt-select">
@@ -122,17 +189,16 @@ export default function AdminGestionTorneos() {
             <option value="en curso">En curso</option>
             <option value="finalizado">Finalizado</option>
           </select>
-
-          <button onClick={actualizarEstado} className="agt-guardar">Guardar cambios</button>
+          <button onClick={actualizarEstado} className="agt-guardar">Guardar estado</button>
 
           <div className="agt-fase-panel">
-            <h4>Fase actual: {faseActual}</h4>
+            <h4>Fase actual</h4>
             <input value={faseActual} onChange={(e) => setFaseActual(e.target.value)} className="agt-input" />
             <button onClick={actualizarFase} className="agt-btn-actualizar">Actualizar fase</button>
           </div>
 
           <div className="agt-fase-panel">
-            <h4>Editor de Fases / Bracket</h4>
+            <h4>Editor de Brackets</h4>
             {fases.map((fase, fIdx) => (
               <div key={fIdx} className="agt-fase-bloque">
                 <h5>{fase.nombre}</h5>
