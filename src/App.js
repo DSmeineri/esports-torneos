@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import RegistroJugador from "./components/RegistroJugador";
 import Login from "./components/Login";
@@ -20,8 +20,11 @@ import AdminNoticias from "./components/adminnoticias";
 import MainLayout from "./components/MainLayout";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminLayout from "./components/AdminLayout";
+import Loader from "./components/loader";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./firebase";
 
-// Wrapper para usuarios autenticados
+// ✅ Wrapper para rutas de usuario autenticado
 const RutaPrivadaLayout = ({ children }) => (
   <PrivateRoute>
     <MainLayout>{children}</MainLayout>
@@ -29,21 +32,26 @@ const RutaPrivadaLayout = ({ children }) => (
 );
 
 function App() {
+  const [user, loading] = useAuthState(auth);
+
+  if (loading) return <Loader />;
+
   return (
-    <Router>
+    <Router basename="/DSmeineri/esports-torneo">
       <Routes>
         {/* 🌐 Rutas públicas */}
-        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
         <Route path="/registrarse" element={<MainLayout><RegistroJugador /></MainLayout>} />
         <Route path="/noticias" element={<MainLayout><Noticias /></MainLayout>} />
         <Route path="/contacto" element={<MainLayout><Contacto /></MainLayout>} />
+        <Route path="/torneos" element={<MainLayout><PanelTorneos /></MainLayout>} />
 
-        {/* 🔐 Rutas protegidas (usuarios autenticados) */}
+        {/* 🔐 Rutas protegidas */}
         <Route path="/perfil" element={<RutaPrivadaLayout><PerfilJugador /></RutaPrivadaLayout>} />
         <Route path="/registro-equipo" element={<RutaPrivadaLayout><RegistroEquipo /></RutaPrivadaLayout>} />
         <Route path="/perfil-equipo" element={<RutaPrivadaLayout><PerfilEquipo /></RutaPrivadaLayout>} />
-        <Route path="/torneos" element={<RutaPrivadaLayout><PanelTorneos /></RutaPrivadaLayout>} />
         <Route path="/torneos/:id" element={<RutaPrivadaLayout><VisualizacionTorneos /></RutaPrivadaLayout>} />
 
         {/* 🔒 Rutas exclusivas de administrador */}

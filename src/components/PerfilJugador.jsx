@@ -21,6 +21,8 @@ import roleExp from "../assets/MLBB roles/exp lane.jpeg";
 import roleJungler from "../assets/MLBB roles/jungler lane.jpeg";
 import roleRoamer from "../assets/MLBB roles/roamer lane.jpeg";
 
+import ImageKitUploader from "./ImageKitUploader";
+
 const logos = {
   "Mobile Legends": mlLogo,
   "League of Legends": lolLogo,
@@ -40,7 +42,6 @@ export default function PerfilJugador() {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({});
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [fotoFile, setFotoFile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -165,43 +166,113 @@ export default function PerfilJugador() {
 
       {editando && (
         <div className="pjr-modal">
-          <div className="pjr-modal-contenido">
-            <button onClick={() => setEditando(false)} className="pjr-btn-editar" style={{ position: "absolute", right: "1rem", top: "1rem" }}>✕</button>
+          <div className="pjr-modal-contenido" style={{ position: "relative" }}>
+            <button
+              onClick={() => setEditando(false)}
+              className="pjr-btn-editar"
+              style={{ position: "absolute", right: "1rem", top: "1rem" }}
+            >
+              ✕
+            </button>
             <h3>Editar perfil</h3>
 
-            <label className="pjr-foto-label">URL de foto de perfil</label>
-            <input type="text" name="fotoURL" value={form.fotoURL || ""} onChange={handleChange} className="pjr-input" />
+            <label className="pjr-foto-label">Foto de perfil</label>
+            <ImageKitUploader
+              fileName={`avatar_jugador_${auth.currentUser.uid}.jpg`}
+              onUploadSuccess={(url) => setForm((prev) => ({ ...prev, fotoURL: url }))}
+            />
+            {form.fotoURL && (
+              <img
+                src={form.fotoURL}
+                alt="Preview foto perfil"
+                style={{ width: 120, borderRadius: 8, marginTop: 10 }}
+              />
+            )}
 
             <label>Nickname</label>
-            <input type="text" name="nickname" value={form.nickname || ""} onChange={handleChange} className="pjr-input" />
+            <input
+              type="text"
+              name="nickname"
+              value={form.nickname || ""}
+              onChange={handleChange}
+              className="pjr-input"
+            />
 
             <label>Email</label>
-            <input type="email" name="email" value={form.email || ""} onChange={handleChange} className="pjr-input" />
+            <input
+              type="email"
+              name="email"
+              value={form.email || ""}
+              onChange={handleChange}
+              className="pjr-input"
+            />
 
             <label>Nombre</label>
-            <input type="text" name="nombre" value={form.nombre || ""} onChange={handleChange} className="pjr-input" />
+            <input
+              type="text"
+              name="nombre"
+              value={form.nombre || ""}
+              onChange={handleChange}
+              className="pjr-input"
+            />
 
             <label>Apellido</label>
-            <input type="text" name="apellido" value={form.apellido || ""} onChange={handleChange} className="pjr-input" />
+            <input
+              type="text"
+              name="apellido"
+              value={form.apellido || ""}
+              onChange={handleChange}
+              className="pjr-input"
+            />
 
             <label>Mostrar nombre públicamente</label>
-            <select name="mostrarNombre" value={form.mostrarNombre ? "true" : "false"} onChange={(e) => setForm(prev => ({ ...prev, mostrarNombre: e.target.value === "true" }))} className="pjr-select">
+            <select
+              name="mostrarNombre"
+              value={form.mostrarNombre ? "true" : "false"}
+              onChange={(e) => setForm(prev => ({ ...prev, mostrarNombre: e.target.value === "true" }))}
+              className="pjr-select"
+            >
               <option value="true">Sí</option>
               <option value="false">No</option>
             </select>
 
             <label>Teléfono</label>
-            <input type="tel" name="telefono" value={form.telefono || ""} onChange={handleChange} className="pjr-input" />
+            <input
+              type="tel"
+              name="telefono"
+              value={form.telefono || ""}
+              onChange={handleChange}
+              className="pjr-input"
+            />
 
             <label>Descripción</label>
-            <textarea name="descripcion" value={form.descripcion || ""} onChange={handleChange} className="pjr-textarea" />
+            <textarea
+              name="descripcion"
+              value={form.descripcion || ""}
+              onChange={handleChange}
+              className="pjr-textarea"
+            />
 
             {form.juegos?.includes("Mobile Legends") && (
               <>
                 <label>ID de Mobile Legends</label>
                 <div className="pjr-id-mlbb">
-                  <input type="text" name="id_MobileLegends" placeholder="Ej: 12345678" value={form.id_MobileLegends || ""} onChange={handleChange} className="pjr-input" />
-                  <input type="text" name="subCodigo_MobileLegends" placeholder="Ej: 1234" value={form.subCodigo_MobileLegends || ""} onChange={handleChange} className="pjr-input" />
+                  <input
+                    type="text"
+                    name="id_MobileLegends"
+                    placeholder="Ej: 12345678"
+                    value={form.id_MobileLegends || ""}
+                    onChange={handleChange}
+                    className="pjr-input"
+                  />
+                  <input
+                    type="text"
+                    name="subCodigo_MobileLegends"
+                    placeholder="Ej: 1234"
+                    value={form.subCodigo_MobileLegends || ""}
+                    onChange={handleChange}
+                    className="pjr-input"
+                  />
                 </div>
 
                 <label>Roles en MLBB</label>
@@ -224,7 +295,13 @@ export default function PerfilJugador() {
 
             <div style={{ marginTop: "2rem" }}>
               <label>Eliminar cuenta (requiere contraseña)</label>
-              <input type="password" placeholder="Confirmar contraseña" value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} className="pjr-input" />
+              <input
+                type="password"
+                placeholder="Confirmar contraseña"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                className="pjr-input"
+              />
               <button onClick={eliminarPerfil} className="pjr-btn-salir">Eliminar cuenta</button>
             </div>
           </div>

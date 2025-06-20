@@ -1,27 +1,32 @@
 // src/components/AdminNoticias.jsx
 import React, { useState } from "react";
-import { db, storage } from "../firebase";
+import { db } from "../firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/adminnoticias.css";
+
+import ImageKitUploader from "./ImageKitUploader";
 
 export default function AdminNoticias() {
   const [form, setForm] = useState({
     titulo: "",
     contenido: "",
     autor: "",
-    imagenes: [],
   });
 
+  // URLs de las imágenes subidas
+  const [imagenesURLs, setImagenesURLs] = useState([]);
   const [mensaje, setMensaje] = useState("");
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "imagenes") {
-      setForm({ ...form, imagenes: Array.from(files).slice(0, 3) });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const onUploadSuccess = (url) => {
+    setImagenesURLs((prev) => {
+      if (prev.length >= 3) return prev; // máximo 3 imágenes
+      return [...prev, url];
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -29,26 +34,22 @@ export default function AdminNoticias() {
     if (!form.titulo || !form.contenido || !form.autor) {
       return setMensaje("❌ Todos los campos son obligatorios");
     }
+    if (imagenesURLs.length === 0) {
+      return setMensaje("❌ Debes subir al menos una imagen");
+    }
 
     try {
-      const urls = [];
-      for (const img of form.imagenes) {
-        const imgRef = ref(storage, `noticias/${Date.now()}_${img.name}`);
-        await uploadBytes(imgRef, img);
-        const url = await getDownloadURL(imgRef);
-        urls.push(url);
-      }
-
       await addDoc(collection(db, "noticias"), {
         titulo: form.titulo,
         contenido: form.contenido,
         autor: form.autor,
         fecha: Timestamp.now(),
-        imagenes: urls,
+        imagenes: imagenesURLs,
       });
 
       setMensaje("✅ Noticia publicada exitosamente");
-      setForm({ titulo: "", contenido: "", autor: "", imagenes: [] });
+      setForm({ titulo: "", contenido: "", autor: "" });
+      setImagenesURLs([]);
     } catch (err) {
       console.error(err);
       setMensaje("❌ Error al publicar noticia");
@@ -90,21 +91,38 @@ export default function AdminNoticias() {
         />
 
         <label className="adm-label">Imágenes (máximo 3)</label>
-        <input
-          type="file"
-          name="imagenes"
-          multiple
-          accept="image/*"
-          onChange={handleChange}
-          className="adm-input"
-        />
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          {[0, 1, 2].map((index) => (
+            <ImageKitUploader
+              key={index}
+              fileName={`noticia_img_${Date.now()}_${index}.jpg`}
+              onUploadSuccess={onUploadSuccess}
+            />
+          ))}
+        </div>
 
-        <button type="submit" className="adm-btn">
+        <button type="submit" className="adm-btn" style={{ marginTop: "1rem" }}>
           Publicar
         </button>
       </form>
 
       {mensaje && <p className="adm-msg">{mensaje}</p>}
+
+      {imagenesURLs.length > 0 && (
+        <div style={{ marginTop: "1rem" }}>
+          <h4>Imágenes subidas:</h4>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {imagenesURLs.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`Noticia imagen ${i + 1}`}
+                style={{ width: 120, borderRadius: 6 }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

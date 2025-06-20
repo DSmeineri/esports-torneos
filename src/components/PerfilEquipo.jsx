@@ -1,3 +1,4 @@
+// src/components/PerfilEquipo.jsx
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import {
@@ -9,6 +10,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import "../styles/perfilequipo.css";
+
+import ImageKitUploader from "./ImageKitUploader"; // Asegúrate que este componente exista
 
 export default function PerfilEquipo() {
   const [equipo, setEquipo] = useState(null);
@@ -68,12 +71,17 @@ export default function PerfilEquipo() {
     setEquipo({ ...equipo, integrantes: nuevos });
   };
 
+  // Nueva función para actualizar logo con URL subida a ImageKit
+  const onLogoUploadSuccess = (url) => {
+    setFormEdit(prev => ({ ...prev, logoURL: url }));
+  };
+
   const guardarCambios = async () => {
     const equipoRef = doc(db, "equipos", equipo.id);
     await updateDoc(equipoRef, {
       nombre: formEdit.nombre,
       descripcion: formEdit.descripcion,
-      logoURL: formEdit.logoURL
+      logoURL: formEdit.logoURL,
     });
     setEquipo({ ...equipo, ...formEdit });
     setModoEdicion(false);
@@ -85,7 +93,7 @@ export default function PerfilEquipo() {
     <div className="peo-container">
       {/* Información del equipo */}
       <section className="peo-info">
-        {equipo.logoURL && (
+        {equipo.logoURL && !modoEdicion && (
           <img src={equipo.logoURL} alt="Logo del equipo" className="peo-logo" />
         )}
         <div className="peo-info-text">
@@ -103,15 +111,27 @@ export default function PerfilEquipo() {
                 onChange={(e) => setFormEdit({ ...formEdit, descripcion: e.target.value })}
                 placeholder="Descripción"
               />
-              <input
-                type="text"
-                value={formEdit.logoURL}
-                onChange={(e) => setFormEdit({ ...formEdit, logoURL: e.target.value })}
-                placeholder="URL del logo"
+
+              <label style={{ marginTop: "0.5rem" }}>Logo del equipo (sube una imagen):</label>
+              <ImageKitUploader
+                fileName={`logo_equipo_${Date.now()}.jpg`}
+                onUploadSuccess={onLogoUploadSuccess}
               />
-              <div className="peo-edit-btns">
-                <button onClick={guardarCambios} className="peo-btn guardar">Guardar</button>
-                <button onClick={() => setModoEdicion(false)} className="peo-btn cancelar">Cancelar</button>
+              {formEdit.logoURL && (
+                <img
+                  src={formEdit.logoURL}
+                  alt="Preview logo"
+                  style={{ width: 100, marginTop: 10, borderRadius: 8 }}
+                />
+              )}
+
+              <div className="peo-edit-btns" style={{ marginTop: "1rem" }}>
+                <button onClick={guardarCambios} className="peo-btn guardar">
+                  Guardar
+                </button>
+                <button onClick={() => setModoEdicion(false)} className="peo-btn cancelar">
+                  Cancelar
+                </button>
               </div>
             </div>
           ) : (
@@ -134,7 +154,9 @@ export default function PerfilEquipo() {
             <li key={idx}>
               {i.nombre} <span className="uid">({i.uid})</span>
               {i.uid !== auth.currentUser.uid && (
-                <button onClick={() => eliminarIntegrante(i.uid)} className="quitar">Quitar</button>
+                <button onClick={() => eliminarIntegrante(i.uid)} className="quitar">
+                  Quitar
+                </button>
               )}
             </li>
           ))}
@@ -175,7 +197,8 @@ export default function PerfilEquipo() {
           <ul>
             {torneos.map((t) => (
               <li key={t.id}>
-                🏆 {t.nombre} - {new Date(t.fecha.seconds * 1000).toLocaleDateString()} - Estado: <strong>{t.estado}</strong>
+                🏆 {t.nombre} - {new Date(t.fecha.seconds * 1000).toLocaleDateString()} - Estado:{" "}
+                <strong>{t.estado}</strong>
               </li>
             ))}
           </ul>
