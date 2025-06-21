@@ -1,12 +1,28 @@
 // src/components/PanelTorneos.jsx
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabase";
+import { db, auth } from "../firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/paneltorneos.css";
+
+// Mapear logos según juego
+const logos = {
+  "Mobile Legends": require("../assets/juegos/mobile-legends.png"),
+  "League of Legends": require("../assets/juegos/lol.png"),
+  Valorant: require("../assets/juegos/valorant.png"),
+};
 
 export default function PanelTorneos() {
   const [torneos, setTorneos] = useState([]);
   const [miEquipo, setMiEquipo] = useState(null);
   const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -113,23 +129,54 @@ export default function PanelTorneos() {
 
       {mensaje && <p className="pts-msg">{mensaje}</p>}
 
-      <div className="pts-lista">
+      <div className="pts-grid">
         {torneos.map((torneo) => (
-          <div key={torneo.id} className="pts-tarjeta">
-            <h3 className="pts-titulo">{torneo.nombre}</h3>
-            <p>🎮 Juego: {torneo.juego}</p>
-            <p>🗓️ Fecha: {new Date(torneo.fecha).toLocaleString()}</p>
-            <p>👥 Cupo: {(torneo.equipos_inscritos || []).length} / {torneo.equipos_totales}</p>
-            <p>🧑‍🤝‍🧑 Integrantes por equipo: {torneo.jugadores_por_equipo}</p>
-            <p>🎫 Tickets por jugador: {torneo.tickets_por_jugador}</p>
-            <p>Estado: <strong className="capitalize">{torneo.estado}</strong></p>
+          <div key={torneo.id} className="pts-card">
+            <div className="pts-header">
+              {logos[torneo.juego] && (
+                <img
+                  src={logos[torneo.juego]}
+                  alt={torneo.juego}
+                  className="pts-logo"
+                />
+              )}
+              <h3 className="pts-nombre">{torneo.nombre}</h3>
+            </div>
 
-            <button
-              onClick={() => inscribirEquipo(torneo)}
-              className="pts-btn"
-            >
-              Inscribir equipo
-            </button>
+            <p><strong>🎮 Juego:</strong> {torneo.juego}</p>
+            <p><strong>📅 Fecha:</strong> {new Date(torneo.fecha.seconds * 1000).toLocaleDateString()}</p>
+            <p><strong>🎫 Inscripción:</strong> {torneo.ticketsPorJugador} ticket(s)</p>
+            <p><strong>👥 Equipos:</strong> {torneo.equiposInscritos.length} / {torneo.equiposTotales}</p>
+            <p><strong>Estado:</strong> {torneo.estado}</p>
+
+            {torneo.descripcion && (
+              <div className="pts-desc">
+                <p><strong>📘 Reglas:</strong></p>
+                <p>{torneo.descripcion}</p>
+              </div>
+            )}
+
+            <div className="pts-acciones">
+              <button
+                onClick={() => navigate(`/torneos/${torneo.id}`)}
+                className="pts-ver-btn"
+              >
+                Ver detalles
+              </button>
+
+              {torneo.estado === "abierto" ? (
+                <button
+                  onClick={() => inscribirEquipo(torneo)}
+                  className="pts-inscribir-btn"
+                >
+                  Inscribir equipo
+                </button>
+              ) : (
+                <button className="pts-curso-btn" disabled>
+                  Torneo en curso
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

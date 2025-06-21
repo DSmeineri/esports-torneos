@@ -1,19 +1,22 @@
 // src/components/AdminTickets.jsx
 import React, { useState } from "react";
-import { supabase } from "../supabase";
-import "../styles/admintickets.css";
+import { doc, getDoc, getDocs, updateDoc, collection, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+import "../styles/admintickets.css"; // ✅ Estilos específicos ya aplicados
 
 export default function AdminTickets() {
+  // Estado para jugadores
   const [uid, setUid] = useState("");
   const [jugador, setJugador] = useState(null);
+
+  // Estado para equipos
+  const [equipoNombre, setEquipoNombre] = useState("");
+  const [equipo, setEquipo] = useState(null);
+
   const [cantidad, setCantidad] = useState(1);
   const [mensaje, setMensaje] = useState("");
 
-  const [nombreEquipo, setNombreEquipo] = useState("");
-  const [equipo, setEquipo] = useState(null);
-  const [mensajeEquipo, setMensajeEquipo] = useState("");
-
-  // 🎮 Buscar jugador por UID
+  // Buscar jugador
   const buscarJugador = async () => {
     try {
       const { data, error } = await supabase
@@ -35,45 +38,48 @@ export default function AdminTickets() {
     }
   };
 
-  // 🤝 Buscar equipo por nombre
+  // Buscar equipo
   const buscarEquipo = async () => {
     try {
-      const { data, error } = await supabase
-        .from("equipos")
-        .select("*")
-        .eq("nombre", nombreEquipo)
-        .single();
-
-      if (error || !data) {
-        setEquipo(null);
-        setMensajeEquipo("⚠️ Equipo no encontrado.");
+      const q = query(collection(db, "equipos"), where("nombre", "==", equipoNombre));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const docData = snapshot.docs[0];
+        setEquipo({ id: docData.id, ...docData.data() });
+        setMensaje("");
       } else {
-        setEquipo(data);
-        setMensajeEquipo("");
+        setEquipo(null);
+        setMensaje("⚠️ Equipo no encontrado.");
       }
     } catch (err) {
       console.error(err);
-      setMensajeEquipo("❌ Error al buscar equipo.");
+      setMensaje("❌ Error al buscar equipo.");
     }
   };
 
-  // 🎫 Actualizar tickets de jugador
-  const actualizarTickets = async (tipo) => {
-    if (!jugador) return;
-    const nuevos = tipo === "sumar"
-      ? (jugador.tickets || 0) + cantidad
-      : Math.max(0, (jugador.tickets || 0) - cantidad);
+  // Actualizar tickets (jugador o equipo)
+  const actualizarTickets = async (tipo, entidad, isEquipo = false) => {
+    const campo = isEquipo ? "ticketsEquipo" : "tickets";
+    const obj = isEquipo ? equipo : jugador;
+    if (!obj) return;
+
+    const nuevos =
+      tipo === "sumar"
+        ? (obj[campo] || 0) + cantidad
+        : Math.max(0, (obj[campo] || 0) - cantidad);
 
     try {
-      const { error } = await supabase
-        .from("jugadores")
-        .update({ tickets: nuevos })
-        .eq("uid", jugador.uid);
+      await updateDoc(doc(db, isEquipo ? "equipos" : "jugadores", obj.id), {
+        [campo]: nuevos,
+      });
 
-      if (error) throw error;
+      if (isEquipo) {
+        setEquipo({ ...obj, [campo]: nuevos });
+      } else {
+        setJugador({ ...obj, [campo]: nuevos });
+      }
 
-      setJugador({ ...jugador, tickets: nuevos });
-      setMensaje(`✅ Tickets ${tipo === "sumar" ? "otorgados" : "debitados"} correctamente.`);
+      setMensaje(`✅ Tickets ${tipo === "sumar" ? "otorgados" : "debitados"} correctamente a ${isEquipo ? "equipo" : "jugador"}.`);
     } catch (err) {
       console.error(err);
       setMensaje("❌ Error al actualizar tickets.");
@@ -108,16 +114,16 @@ export default function AdminTickets() {
       <div className="atk-container">
         <h2 className="atk-title">🎮 Tickets por Jugador</h2>
 
-        <div className="atk-busqueda">
-          <input
-            type="text"
-            value={uid}
-            onChange={(e) => setUid(e.target.value)}
-            placeholder="UID del jugador"
-            className="atk-input"
-          />
-          <button onClick={buscarJugador} className="atk-boton">Buscar</button>
-        </div>
+      <div className="atk-busqueda">
+        <input
+          type="text"
+          value={uid}
+          onChange={(e) => setUid(e.target.value)}
+          placeholder="UID del jugador"
+          className="atk-input"
+        />
+        <button onClick={buscarJugador} className="atk-boton">Buscar</button>
+      </div>
 
         {jugador && (
           <div className="atk-info">
@@ -138,59 +144,55 @@ export default function AdminTickets() {
               />
             </div>
 
-            <div className="atk-acciones">
-              <button onClick={() => actualizarTickets("sumar")} className="atk-boton green">Otorgar</button>
-              <button onClick={() => actualizarTickets("restar")} className="atk-boton red">Debitar</button>
-            </div>
+          <div className="atk-acciones">
+            <button onClick={() => actualizarTickets("sumar", jugador)} className="atk-boton green">Otorgar</button>
+            <button onClick={() => actualizarTickets("restar", jugador)} className="atk-boton red">Debitar</button>
           </div>
-        )}
-
-        {mensaje && <p className="atk-mensaje">{mensaje}</p>}
-      </div>
-
-      {/* PANEL EQUIPO */}
-      <div className="atk-container">
-        <h2 className="atk-title">🤝 Tickets por Equipo</h2>
-
-        <div className="atk-busqueda">
-          <input
-            type="text"
-            value={nombreEquipo}
-            onChange={(e) => setNombreEquipo(e.target.value)}
-            placeholder="Nombre del equipo"
-            className="atk-input"
-          />
-          <button onClick={buscarEquipo} className="atk-boton">Buscar</button>
         </div>
+      )}
 
-        {equipo && (
-          <div className="atk-info">
-            <p><strong>Equipo:</strong> {equipo.nombre}</p>
-            <p><strong>Tickets equipo:</strong> {equipo.ticketsEquipo || 0}</p>
+      <hr className="atk-separator" />
 
-            <div className="atk-cantidad">
-              <label>Cantidad:</label>
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={cantidad}
-                onChange={(e) =>
-                  setCantidad(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))
-                }
-                className="atk-input cantidad"
-              />
-            </div>
+      <h2 className="atk-title">Panel de Tickets por Equipo</h2>
 
-            <div className="atk-acciones">
-              <button onClick={() => actualizarTicketsEquipo("sumar")} className="atk-boton green">Otorgar</button>
-              <button onClick={() => actualizarTicketsEquipo("restar")} className="atk-boton red">Debitar</button>
-            </div>
-          </div>
-        )}
-
-        {mensajeEquipo && <p className="atk-mensaje">{mensajeEquipo}</p>}
+      <div className="atk-busqueda">
+        <input
+          type="text"
+          value={equipoNombre}
+          onChange={(e) => setEquipoNombre(e.target.value)}
+          placeholder="Nombre del equipo"
+          className="atk-input"
+        />
+        <button onClick={buscarEquipo} className="atk-boton">Buscar</button>
       </div>
+
+      {equipo && (
+        <div className="atk-info">
+          <p><strong>Equipo:</strong> {equipo.nombre}</p>
+          <p><strong>Tickets:</strong> {equipo.ticketsEquipo || 0}</p>
+
+          <div className="atk-cantidad">
+            <label>Cantidad:</label>
+            <input
+              type="number"
+              min="1"
+              max="10"
+              value={cantidad}
+              onChange={(e) =>
+                setCantidad(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))
+              }
+              className="atk-input cantidad"
+            />
+          </div>
+
+          <div className="atk-acciones">
+            <button onClick={() => actualizarTickets("sumar", equipo, true)} className="atk-boton green">Otorgar</button>
+            <button onClick={() => actualizarTickets("restar", equipo, true)} className="atk-boton red">Debitar</button>
+          </div>
+        </div>
+      )}
+
+      {mensaje && <p className="atk-mensaje">{mensaje}</p>}
     </div>
   );
 }

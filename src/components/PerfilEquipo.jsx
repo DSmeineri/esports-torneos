@@ -1,6 +1,17 @@
+// src/components/PerfilEquipo.jsx
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabase";
+import { auth, db } from "../firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import "../styles/perfilequipo.css";
+
+import ImageKitUploader from "./ImageKitUploader"; // Asegúrate que este componente exista
 
 export default function PerfilEquipo() {
   const [equipo, setEquipo] = useState(undefined);
@@ -94,17 +105,17 @@ export default function PerfilEquipo() {
     setEquipo({ ...equipo, integrantes: nuevos });
   };
 
-  const salirDelEquipo = async () => {
-    const nuevos = equipo.integrantes.filter((i) => i.uid !== uidActual);
-    await supabase.from("equipos").update({ integrantes: nuevos }).eq("id", equipo.id);
-    setEquipo(null);
+  // Nueva función para actualizar logo con URL subida a ImageKit
+  const onLogoUploadSuccess = (url) => {
+    setFormEdit(prev => ({ ...prev, logoURL: url }));
   };
 
   const guardarCambios = async () => {
     await supabase.from("equipos").update({
       nombre: formEdit.nombre,
       descripcion: formEdit.descripcion,
-    }).eq("id", equipo.id);
+      logoURL: formEdit.logoURL,
+    });
     setEquipo({ ...equipo, ...formEdit });
     setModoEdicion(false);
   };
@@ -115,16 +126,9 @@ export default function PerfilEquipo() {
   return (
     <div className="peo-container">
       <section className="peo-info">
-        <div className="peo-logo-container">
-          <img src={equipo.logo_url} alt="Logo del equipo" className="peo-logo" />
-          {esLider && (
-            <label className="peo-logo-upload">
-              Cambiar logo
-              <input type="file" accept="image/*" onChange={subirFoto} hidden />
-            </label>
-          )}
-        </div>
-
+        {equipo.logoURL && !modoEdicion && (
+          <img src={equipo.logoURL} alt="Logo del equipo" className="peo-logo" />
+        )}
         <div className="peo-info-text">
           {modoEdicion && esLider ? (
             <div className="peo-form-edit">
@@ -140,9 +144,27 @@ export default function PerfilEquipo() {
                 onChange={(e) => setFormEdit({ ...formEdit, descripcion: e.target.value })}
                 placeholder="Descripción"
               />
-              <div className="peo-edit-btns">
-                <button onClick={guardarCambios} className="peo-btn guardar">Guardar</button>
-                <button onClick={() => setModoEdicion(false)} className="peo-btn cancelar">Cancelar</button>
+
+              <label style={{ marginTop: "0.5rem" }}>Logo del equipo (sube una imagen):</label>
+              <ImageKitUploader
+                fileName={`logo_equipo_${Date.now()}.jpg`}
+                onUploadSuccess={onLogoUploadSuccess}
+              />
+              {formEdit.logoURL && (
+                <img
+                  src={formEdit.logoURL}
+                  alt="Preview logo"
+                  style={{ width: 100, marginTop: 10, borderRadius: 8 }}
+                />
+              )}
+
+              <div className="peo-edit-btns" style={{ marginTop: "1rem" }}>
+                <button onClick={guardarCambios} className="peo-btn guardar">
+                  Guardar
+                </button>
+                <button onClick={() => setModoEdicion(false)} className="peo-btn cancelar">
+                  Cancelar
+                </button>
               </div>
             </div>
           ) : (
@@ -172,12 +194,11 @@ export default function PerfilEquipo() {
         <ul>
           {equipo.integrantes?.map((i, idx) => (
             <li key={idx}>
-              <span>{i.nombre}</span>
-              <span className="uid">
-                {i.uid === equipo.creador_uid ? "👑 Líder" : "🎮 Integrante"}
-              </span>
-              {esLider && i.uid !== uidActual && (
-                <button onClick={() => eliminarIntegrante(i.uid)} className="quitar">Quitar</button>
+              {i.nombre} <span className="uid">({i.uid})</span>
+              {i.uid !== auth.currentUser.uid && (
+                <button onClick={() => eliminarIntegrante(i.uid)} className="quitar">
+                  Quitar
+                </button>
               )}
               {!esLider && i.uid === uidActual && (
                 <button onClick={salirDelEquipo} className="quitar">Salir</button>
@@ -221,11 +242,20 @@ export default function PerfilEquipo() {
           <ul>
             {torneos.map((t) => (
               <li key={t.id}>
-                🏆 {t.nombre} - {new Date(t.fecha).toLocaleDateString()} - Estado: <strong>{t.estado}</strong>
+                🏆 {t.nombre} - {new Date(t.fecha.seconds * 1000).toLocaleDateString()} - Estado:{" "}
+                <strong>{t.estado}</strong>
               </li>
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Bloque de Tickets del Equipo */}
+      <section className="peo-tickets">
+        <h3>Tickets del equipo</h3>
+        <div className="peo-tickets-box">
+          🎟️ <strong>{equipo.ticketsEquipo || 0}</strong> tickets disponibles
+        </div>
       </section>
     </div>
   );

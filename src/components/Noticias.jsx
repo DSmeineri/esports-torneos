@@ -58,6 +58,7 @@ export default function Noticias() {
                         alt={`imagen-${index}`}
                         className="nts-img"
                         onClick={() => setImagenAmpliada(url)}
+                        style={{ cursor: "pointer" }}
                       />
                     </div>
                   ))}
@@ -75,7 +76,9 @@ export default function Noticias() {
       {imagenAmpliada && (
         <div className="nts-modal" onClick={cerrarModal}>
           <div className="nts-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="nts-modal-close" onClick={cerrarModal}>×</button>
+            <button className="nts-modal-close" onClick={cerrarModal}>
+              ×
+            </button>
             <img src={imagenAmpliada} alt="imagen ampliada" className="nts-modal-img" />
           </div>
         </div>

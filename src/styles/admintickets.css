@@ -95,15 +95,8 @@
   color: #2563eb;
   margin-top: 1rem;
 }
-.atk-grid-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-@media (min-width: 768px) {
-  .atk-grid-container {
-    grid-template-columns: 1fr 1fr;
-  }
+.atk-separator {
+  margin: 3rem 0;
+  border: none;
+  border-top: 2px dashed #ccc;
 }

@@ -1,0 +1,198 @@
+/* admingestiontorneos.css - agt = admin gestión torneos */
+
+.agt-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.agt-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  text-align: center;
+}
+
+.agt-listado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.agt-torneo-btn {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.agt-torneo-btn:hover {
+  background-color: #bae6fd;
+}
+
+.agt-panel {
+  padding: 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.agt-label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.agt-select {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  width: 100%;
+  max-width: 300px;
+}
+
+.agt-guardar,
+.agt-form-button {
+  margin-top: 1rem;
+  background-color: #16a34a;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.agt-guardar:hover,
+.agt-form-button:hover {
+  background-color: #15803d;
+}
+
+.agt-msg {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #059669;
+}
+
+.agt-equipos {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+.agt-equipos li {
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+/* === Formulario de creación === */
+.agt-creacion-torneo {
+  padding: 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background-color: #eef2ff;
+}
+
+.agt-creacion-torneo h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e40af;
+}
+
+.agt-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .agt-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Editor de fases y enfrentamientos === */
+.agt-fase-panel {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.5rem;
+  background-color: #f3f4f6;
+}
+
+.agt-fase-panel h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.agt-fase-bloque {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.agt-fase-bloque h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.agt-enfrentamiento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* === Inputs === */
+.agt-input,
+.agt-select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+}
+
+/* === Botones secundarios === */
+.agt-btn-actualizar {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.agt-btn-actualizar:hover {
+  background-color: #1d4ed8;
+}
